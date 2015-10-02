@@ -3,6 +3,10 @@ var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
 var index = 0;
+var debug = {
+  collision: false
+};
+debug.collision = true;
 
 var keys = {}
 var processKeyDownEvent = function(e) {
@@ -50,11 +54,24 @@ var renderBlock = function(x, y, tile) {
 var renderMap = function(map, x, y) {
   var curX = x;
   var curY = y;
+  var loc = map.getTile(player.x, player.y);
 
   for(var rowIdx = 0, curY = y; rowIdx < 40; rowIdx++, curY += 14) {
     for(var colIdx = 0, curX = x; colIdx < 50; colIdx++, curX += 14) {
       if (map.map[rowIdx][colIdx] !== ' ') {
         renderBlock(curX, curY, blockTiles[ map.map[rowIdx][colIdx] ][0]);
+      }
+
+      if (debug.collision) {
+        if (rowIdx === collideTileX && colIdx === collideTileY) {
+          ctx.fillStyle = "red";
+          ctx.fillRect(curX, curY, 14, 14);
+        }
+
+        if (rowIdx === loc.x && colIdx === loc.y) {
+          ctx.fillStyle = "green";
+          ctx.fillRect(curX, curY, 14, 14);
+        }
       }
     }
   }
@@ -77,30 +94,84 @@ var blockTiles = {
   "HB": [{srcX: 85, srcY: 14}]
 };
 
-var player = new Player(centerX, centerY);
-var tiles = bombermanTiles['up'];
+// map is 50x40 tiles large
 var map = new Map(50, 40);
+
+var emptyPos = map.findEmpty();
+var player = new Player(emptyPos.x + 20, emptyPos.y + 20);
+var tiles = bombermanTiles['up'];
+var collideTileX = undefined;
+var collideTileY = undefined;
+
+var getPlayerTile = function(player, map) {
+  return map.getTile(player.x, player.y + 16);
+};
+
+var collidesWith = function(tileX, tileY, map) {
+  // For debugging purposes...
+  collideTileX = tileX;
+  collideTileY = tileY;
+
+  return (map.map[tileX][tileY] !== ' ');
+};
+
+var collidesLeft = function(player, map) {
+  var location = getPlayerTile(player, map);
+  var tileX = location.x;
+  var tileY = location.y;
+
+  return collidesWith(tileX - 1, tileY - 1, map);
+};
+
+var collidesRight = function(player, map) {
+  var location = getPlayerTile(player, map);
+  var tileX = location.x;
+  var tileY = location.y;
+
+  return collidesWith(tileX + 1, tileY, map);
+};
+
+var collidesUp = function(player, map) {
+  var location = getPlayerTile(player, map);
+  var tileX = location.x;
+  var tileY = location.y;
+
+  return collidesWith(tileX, tileY - 1, map);
+};
+
+var collidesDown = function(player, map) {
+  var location = getPlayerTile(player, map);
+  var tileX = location.x;
+  var tileY = location.y;
+
+  return collidesWith(tileX, tileY + 1, map);
+};
+
 setInterval(function () {
   renderBackground();
   renderMap(map, 20, 20);
 
   if (keys['up']) {
-    player.moveUp();
+    if (!collidesUp(player, map))
+      player.moveUp();
     tiles = bombermanTiles['up'];
     index = (index + 1) % 3;
   }
   else if (keys['down']) {
-    player.moveDown();
+    if (!collidesDown(player, map))
+      player.moveDown();
     tiles = bombermanTiles['down'];
     index = (index + 1) % 3;
   }
   else if (keys['left']) {
-    player.moveLeft();
+    if (!collidesLeft(player, map))
+      player.moveLeft();
     tiles = bombermanTiles['left'];
     index = (index + 1) % 3;
   }
   else if (keys['right']) {
-    player.moveRight();
+    if (!collidesRight(player, map))
+      player.moveRight();
     tiles = bombermanTiles['right'];
     index = (index + 1) % 3;
   }

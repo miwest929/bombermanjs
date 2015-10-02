@@ -1,11 +1,30 @@
 var Map = function(cols, rows) {
-
-  // map is 50x40 tiles large
-  this.colCount = cols;
-  this.rowCount = rows;
+  this.cols = cols;
+  this.rows = rows;
   this.map = Map.prototype.generate(cols, rows);
-  console.log("INSIDE MAP CONSTRUCTURE.....");
-  console.log(this.map);
+};
+
+Map.prototype.findEmpty = function() {
+  var randomRow = Math.floor(Math.random() * this.rows);
+  var randomCol = Math.floor(Math.random() * this.cols);
+
+  while (this.map[randomRow][randomCol] !== ' ') {
+    randomRow = Math.floor(Math.random() * this.rows);
+    randomCol = Math.floor(Math.random() * this.cols);
+  }
+
+  // Each tile is 14x14
+  return {
+    x: randomCol * 14,
+    y: randomRow * 14
+  };
+};
+
+Map.prototype.getTile = function(rawX, rawY) {
+  return {
+    x: Math.floor(rawY / 14),
+    y: Math.floor(rawX / 14)
+  };
 };
 
 Map.prototype.generate = function(cols, rows) {
@@ -21,7 +40,7 @@ Map.prototype.generate = function(cols, rows) {
       map[rowIdx][cols - 1] = "HB";
 
       for (var colIdx = 1; colIdx < (cols - 1); colIdx++) {
-        var blockOrNot = Math.floor(Math.random()*2);
+        var blockOrNot = Math.floor(Math.random()*5);
 
         if (blockOrNot === 1) { map[rowIdx][colIdx] = "B"; }
       }

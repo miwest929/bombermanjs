@@ -1,9 +1,7 @@
 var Player = function(startX, startY) {
   this.x = startX;
   this.y = startY;
-  this.moveX = 0;
-  this.moveY = 0;
-  this.baseSpeed = 8;
+  this.baseSpeed = 4.6;
 };
 
 Player.prototype.moveUp = function() {
