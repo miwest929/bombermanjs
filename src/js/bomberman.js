@@ -54,7 +54,7 @@ var renderBlock = function(x, y, tile) {
 var renderMap = function(map, x, y) {
   var curX = x;
   var curY = y;
-  var loc = map.getTile(player.x, player.y);
+  var loc = {x: player.curTileY(), y: player.curTileX()};
 
   for(var rowIdx = 0, curY = y; rowIdx < 40; rowIdx++, curY += 14) {
     for(var colIdx = 0, curX = x; colIdx < 50; colIdx++, curX += 14) {
@@ -72,6 +72,16 @@ var renderMap = function(map, x, y) {
           ctx.fillStyle = "green";
           ctx.fillRect(curX, curY, 14, 14);
         }
+      }
+
+      if (rowIdx === player.curTileX() && colIdx === player.curTileY()) {
+        console.log(`rowIdx: ${rowIdx}, colIdx: ${colIdx}, ROW: ${player.curTileX()}, COL: ${player.curTileY()}`);
+        ctx.drawImage(
+          spritesRepo.fetch('bomberman').image,
+          tiles[index].srcX,
+          tiles[index].srcY,
+          16, 32, player.x, player.y, 16, 32
+        );
       }
     }
   }
@@ -98,29 +108,29 @@ var blockTiles = {
 var map = new Map(50, 40);
 
 var emptyPos = map.findEmpty();
-var player = new Player(emptyPos.x + 20, emptyPos.y + 20);
+var player = new Player(emptyPos.x + 20, emptyPos.y + 20, emptyPos.tileX, emptyPos.tileY);
 var tiles = bombermanTiles['up'];
 var collideTileX = undefined;
 var collideTileY = undefined;
 
-var getPlayerTile = function(player, map) {
-  return map.getTile(player.x, player.y + 16);
+var getPlayerTile = function(player) {
+  return {x: player.curTileX(), y: player.curTileY()};
 };
 
 var collidesWith = function(tileX, tileY, map) {
   // For debugging purposes...
-  collideTileX = tileX;
-  collideTileY = tileY;
+  collideTileX = tileY + 1;
+  collideTileY = tileX;
 
-  return (map.map[tileX][tileY] !== ' ');
+  return (map.map[tileY + 1][tileX] !== ' ');
 };
 
 var collidesLeft = function(player, map) {
-  var location = getPlayerTile(player, map);
+  var location = getPlayerTile(player);
   var tileX = location.x;
   var tileY = location.y;
 
-  return collidesWith(tileX - 1, tileY - 1, map);
+  return collidesWith(tileX - 1, tileY, map);
 };
 
 var collidesRight = function(player, map) {
@@ -176,10 +186,10 @@ setInterval(function () {
     index = (index + 1) % 3;
   }
 
-  ctx.drawImage(
+/*  ctx.drawImage(
     spritesRepo.fetch('bomberman').image,
     tiles[index].srcX,
     tiles[index].srcY,
     16, 32, player.x, player.y, 16, 32
-  );
+  );*/
 }, 100);

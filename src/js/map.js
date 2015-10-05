@@ -15,15 +15,10 @@ Map.prototype.findEmpty = function() {
 
   // Each tile is 14x14
   return {
+    tileX: randomCol,
+    tileY: randomRow,
     x: randomCol * 14,
     y: randomRow * 14
-  };
-};
-
-Map.prototype.getTile = function(rawX, rawY) {
-  return {
-    x: Math.floor(rawY / 14),
-    y: Math.floor(rawX / 14)
   };
 };
 
