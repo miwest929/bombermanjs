@@ -55,11 +55,17 @@ var renderBlock = function(x, y, tile) {
   );
 };
 
+var getPlayerTile = function(player) {
+  return {x: player.curTileX(), y: player.curTileY()};
+};
+
 var renderMap = function(map, x, y) {
   var curX = x;
   var curY = y;
-  var loc = {x: player.curTileY(), y: player.curTileX()};
+  var loc = getPlayerTile(player)
 
+  // rows -> along y-axis
+  // cols -> along x-axis
   for(var rowIdx = 0, curY = y; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
     for(var colIdx = 0, curX = x; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
       if (map.map[rowIdx][colIdx] !== ' ') {
@@ -68,17 +74,19 @@ var renderMap = function(map, x, y) {
 
       if (debug.collision) {
         if (rowIdx === collideTileX && colIdx === collideTileY) {
+          console.log(`Collision Tile is at Row ${rowIdx} and Col ${colIdx}`)
           ctx.fillStyle = "red";
           ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
 
         if (rowIdx === loc.x && colIdx === loc.y) {
+          console.log(`Player is at Row ${rowIdx} and Col ${colIdx}`)
           ctx.fillStyle = "green";
           ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
       }
 
-      if (rowIdx === player.curTileX() && colIdx === player.curTileY()) {
+      if (rowIdx === loc.x && colIdx === loc.y) {
         ctx.drawImage(
           spritesRepo.fetch('bomberman').image,
           tiles[index].srcX,
@@ -115,10 +123,6 @@ var player = new Player(emptyPos.x + 7, emptyPos.y + 7, emptyPos.tileX, emptyPos
 var tiles = bombermanTiles['up'];
 var collideTileX = undefined;
 var collideTileY = undefined;
-
-var getPlayerTile = function(player) {
-  return {x: player.curTileX(), y: player.curTileY()};
-};
 
 var collidesWith = function(tileX, tileY, map) {
   // For debugging purposes...
