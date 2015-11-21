@@ -1,39 +1,36 @@
-var Player = function(startX, startY, tileX, tileY) {
+var Player = function(startX, startY, tileCol, tileRow) {
   this.x = startX;
   this.y = startY;
-  this.tileX = tileX;
-  this.tileY = tileY;
-  this.baseSpeedIncrement = 0.33;
-  this.baseSpeed = 5.0;
+  this.tileCol = tileCol;
+  this.tileRow = tileRow;
+  this.baseSpeedIncrement = 0.3333;
+  this.baseSpeed = 6.667;
 };
 
-Player.prototype.curTileX = function() {
-  return Math.floor(this.tileX);
+Player.prototype.tileColIndex = function() {
+  return Math.floor(this.tileCol);
 }
 
-Player.prototype.curTileY = function() {
-  return Math.floor(this.tileY);
+Player.prototype.tileRowIndex = function() {
+  return Math.floor(this.tileRow);
 }
 
 Player.prototype.moveUp = function() {
   this.y += -this.baseSpeed;
-  this.tileY += -this.baseSpeedIncrement;
+  this.tileRow += -this.baseSpeedIncrement;
 }
 
 Player.prototype.moveDown = function() {
   this.y += this.baseSpeed;
-  this.tileY += this.baseSpeedIncrement;
+  this.tileRow += this.baseSpeedIncrement;
 }
 
 Player.prototype.moveLeft = function() {
   this.x += -this.baseSpeed;
-  this.tileX += -this.baseSpeedIncrement;
-  console.log(`tileX: ${this.tileX}, tileY: ${this.tileY}`)
+  this.tileCol += -this.baseSpeedIncrement;
 }
 
 Player.prototype.moveRight = function() {
   this.x += this.baseSpeed;
-  this.tileX += this.baseSpeedIncrement;
-
-  console.log(`tileX: ${this.tileX}, tileY: ${this.tileY}`)
+  this.tileCol += this.baseSpeedIncrement;
 }

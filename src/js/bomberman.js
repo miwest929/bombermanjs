@@ -56,7 +56,7 @@ var renderBlock = function(x, y, tile) {
 };
 
 var getPlayerTile = function(player) {
-  return {x: player.curTileX(), y: player.curTileY()};
+  return {x: player.tileColIndex(), y: player.tileRowIndex()};
 };
 
 var renderMap = function(map, x, y) {
@@ -79,14 +79,16 @@ var renderMap = function(map, x, y) {
           ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
 
-        if (rowIdx === loc.x && colIdx === loc.y) {
-          console.log(`Player is at Row ${rowIdx} and Col ${colIdx}`)
+        if (rowIdx === loc.y && colIdx === loc.x) {
           ctx.fillStyle = "green";
-          ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
+
+          // fillRect(x, y, width, height)
+          ctx.fillRect(player.x, player.y, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
       }
 
-      if (rowIdx === loc.x && colIdx === loc.y) {
+      if (rowIdx === loc.y && colIdx === loc.x) {
+        console.log(`Player Tile is at Row ${loc.y} and Col ${loc.x}`)
         ctx.drawImage(
           spritesRepo.fetch('bomberman').image,
           tiles[index].srcX,
@@ -124,44 +126,44 @@ var tiles = bombermanTiles['up'];
 var collideTileX = undefined;
 var collideTileY = undefined;
 
-var collidesWith = function(tileX, tileY, map) {
+var collidesWith = function(tileRow, tileCol, map) {
   // For debugging purposes...
-  collideTileX = tileY + 1;
-  collideTileY = tileX;
+  collideTileX = tileRow;
+  collideTileY = tileCol;
 
-  return (map.map[tileY + 1][tileX] !== ' ');
+  return (map.map[tileRow][tileCol] !== ' ');
 };
 
 var collidesLeft = function(player, map) {
   var location = getPlayerTile(player);
-  var tileX = location.x;
-  var tileY = location.y;
+  var tileCol = location.x;
+  var tileRow = location.y;
 
-  return collidesWith(tileX - 1, tileY, map);
+  return collidesWith(tileRow, tileCol - 1, map);
 };
 
 var collidesRight = function(player, map) {
   var location = getPlayerTile(player, map);
-  var tileX = location.x;
-  var tileY = location.y;
+  var tileCol = location.x;
+  var tileRow = location.y;
 
-  return collidesWith(tileX + 1, tileY, map);
+  return collidesWith(tileRow, tileCol + 1, map);
 };
 
 var collidesUp = function(player, map) {
   var location = getPlayerTile(player, map);
-  var tileX = location.x;
-  var tileY = location.y;
+  var tileCol = location.x;
+  var tileRow = location.y;
 
-  return collidesWith(tileX, tileY - 1, map);
+  return collidesWith(tileRow - 1, tileCol, map);
 };
 
 var collidesDown = function(player, map) {
   var location = getPlayerTile(player, map);
-  var tileX = location.x;
-  var tileY = location.y;
+  var tileCol = location.x;
+  var tileRow = location.y;
 
-  return collidesWith(tileX, tileY + 1, map);
+  return collidesWith(tileRow + 1, tileCol, map);
 };
 
 setInterval(function () {

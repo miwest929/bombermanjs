@@ -13,12 +13,12 @@ Map.prototype.findEmpty = function() {
     randomCol = Math.floor(Math.random() * this.cols);
   }
 
-  // Each tile is 14x14
+  // Each tile is BLOCK_WIDTH x BLOCK_HEIGHT
   return {
     tileX: randomCol,
     tileY: randomRow,
-    x: randomCol * 14,
-    y: randomRow * 14
+    x: randomCol * BLOCK_WIDTH,
+    y: randomRow * BLOCK_HEIGHT
   };
 };
 
