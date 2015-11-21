@@ -2,6 +2,10 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
+var COLS_MAP = 35;
+var ROWS_MAP = 25;
+var BLOCK_WIDTH = 20;
+var BLOCK_HEIGHT = 20;
 var index = 0;
 var debug = {
   collision: false
@@ -47,7 +51,7 @@ var renderBlock = function(x, y, tile) {
     spritesRepo.fetch('stages').image,
     tile.srcX,
     tile.srcY,
-    14, 14, x, y, 14, 14
+    14, 14, x, y, BLOCK_WIDTH, BLOCK_HEIGHT
   );
 };
 
@@ -56,8 +60,8 @@ var renderMap = function(map, x, y) {
   var curY = y;
   var loc = {x: player.curTileY(), y: player.curTileX()};
 
-  for(var rowIdx = 0, curY = y; rowIdx < 40; rowIdx++, curY += 14) {
-    for(var colIdx = 0, curX = x; colIdx < 50; colIdx++, curX += 14) {
+  for(var rowIdx = 0, curY = y; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
+    for(var colIdx = 0, curX = x; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
       if (map.map[rowIdx][colIdx] !== ' ') {
         renderBlock(curX, curY, blockTiles[ map.map[rowIdx][colIdx] ][0]);
       }
@@ -65,22 +69,21 @@ var renderMap = function(map, x, y) {
       if (debug.collision) {
         if (rowIdx === collideTileX && colIdx === collideTileY) {
           ctx.fillStyle = "red";
-          ctx.fillRect(curX, curY, 14, 14);
+          ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
 
         if (rowIdx === loc.x && colIdx === loc.y) {
           ctx.fillStyle = "green";
-          ctx.fillRect(curX, curY, 14, 14);
+          ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
       }
 
       if (rowIdx === player.curTileX() && colIdx === player.curTileY()) {
-        console.log(`rowIdx: ${rowIdx}, colIdx: ${colIdx}, ROW: ${player.curTileX()}, COL: ${player.curTileY()}`);
         ctx.drawImage(
           spritesRepo.fetch('bomberman').image,
           tiles[index].srcX,
           tiles[index].srcY,
-          16, 32, player.x, player.y, 16, 32
+          16, 32, player.x, player.y, BLOCK_WIDTH, BLOCK_HEIGHT
         );
       }
     }
@@ -105,10 +108,10 @@ var blockTiles = {
 };
 
 // map is 50x40 tiles large
-var map = new Map(50, 40);
+var map = new Map(COLS_MAP, ROWS_MAP);
 
 var emptyPos = map.findEmpty();
-var player = new Player(emptyPos.x + 20, emptyPos.y + 20, emptyPos.tileX, emptyPos.tileY);
+var player = new Player(emptyPos.x + 7, emptyPos.y + 7, emptyPos.tileX, emptyPos.tileY);
 var tiles = bombermanTiles['up'];
 var collideTileX = undefined;
 var collideTileY = undefined;
@@ -185,11 +188,4 @@ setInterval(function () {
     tiles = bombermanTiles['right'];
     index = (index + 1) % 3;
   }
-
-/*  ctx.drawImage(
-    spritesRepo.fetch('bomberman').image,
-    tiles[index].srcX,
-    tiles[index].srcY,
-    16, 32, player.x, player.y, 16, 32
-  );*/
 }, 100);

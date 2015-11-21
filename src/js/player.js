@@ -4,7 +4,7 @@ var Player = function(startX, startY, tileX, tileY) {
   this.tileX = tileX;
   this.tileY = tileY;
   this.baseSpeedIncrement = 0.33;
-  this.baseSpeed = 4.6;
+  this.baseSpeed = 5.0;
 };
 
 Player.prototype.curTileX = function() {
@@ -28,9 +28,12 @@ Player.prototype.moveDown = function() {
 Player.prototype.moveLeft = function() {
   this.x += -this.baseSpeed;
   this.tileX += -this.baseSpeedIncrement;
+  console.log(`tileX: ${this.tileX}, tileY: ${this.tileY}`)
 }
 
 Player.prototype.moveRight = function() {
   this.x += this.baseSpeed;
   this.tileX += this.baseSpeedIncrement;
+
+  console.log(`tileX: ${this.tileX}, tileY: ${this.tileY}`)
 }
