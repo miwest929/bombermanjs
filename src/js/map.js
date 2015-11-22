@@ -35,9 +35,13 @@ Map.prototype.generate = function(cols, rows) {
       map[rowIdx][cols - 1] = "HB";
 
       for (var colIdx = 1; colIdx < (cols - 1); colIdx++) {
-        var blockOrNot = Math.floor(Math.random()*5);
+        if (colIdx % 5 === 0 && rowIdx % 3 === 0) {
+          map[rowIdx][colIdx] = "HB"
+        } else {
+          var blockOrNot = Math.floor(Math.random()*4);
 
-        if (blockOrNot === 1) { map[rowIdx][colIdx] = "B"; }
+          if (blockOrNot === 1) { map[rowIdx][colIdx] = "B"; }
+        }
       }
     }
   }

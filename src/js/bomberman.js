@@ -10,7 +10,9 @@ var index = 0;
 var debug = {
   collision: false
 };
-debug.collision = true;
+
+// TODO: Make this configurable
+debug.collision = false;
 
 var keys = {}
 var processKeyDownEvent = function(e) {
