@@ -1,70 +1,135 @@
-var Tile = function(sprite, startX, startY, tileWidth, tileHeight) {
-  this.sprite = sprite;
-  this.startX = startX;
-  this.startY = startY;
-  this.width = tileWidth;
-  this.height = tileHeight;
-};
+// spritesRepo.fetch("grid.png").asTiles(24, 24, 32, 32, 4);
+class SpriteRepository {
+  constructor(spritePaths) {
+    this.sprites = [];
 
-var Sprite = function() {
-  this.loaded = false;
-  this.image = Sprite.prototype.createImageObject();
-};
+    spritePaths.forEach((path) => {
+      let spriteKey = this.extractName(path);
+      this.sprites[spriteKey] = new Sprite();
+      this.sprites[spriteKey].image.src = path;
+    });
+  }
 
-Sprite.prototype.createImageObject = function() {
-  var img = new Image();
-  img.onload = function() {
-    console.log(`Successfully loaded '${this.src}'`);
-    this.loaded = true;
-  };
-  img.onerror = function() {
-    console.log(`Failed to load '${this.src}'`);
-    this.loaded = true;
-  };
+  fetch(key) {
+    return this.sprites[key];
+  }
 
-  return img;
+  extractName(path) {
+    if (path[0] === '.' )
+      path = path.slice(1);
+
+    return ( path.split('.')[0].split('/').pop() );
+  }
 }
 
-var SpriteRepository = function (spritePaths) {
-  var sprites = [];
+class Sprite {
+  constructor() {
+    this.loaded = false;
+    this.image = this.createImageObject();
+  }
 
-  spritePaths.forEach( function(path) {
-    var spriteKey = SpriteRepository.prototype.extractName(path);
-    sprites[spriteKey] = new Sprite(); //SpriteRepository.prototype.createImageObject();
-    sprites[spriteKey].image.src = path;
-  });
+  asTiles(startX, startY, tileWidth, tileHeight) {
+    let tiles = [];
+    let curX = startX;
+    let curY = startY;
 
-  this.sprites = sprites;
+    /*
+    img  Specifies the image, canvas, or video element to use
+    sx  Optional. The x coordinate where to start clipping
+    sy  Optional. The y coordinate where to start clipping
+    swidth  Optional. The width of the clipped image
+    sheight Optional. The height of the clipped image
+    */
+    for(; curY < (startY + this.image.height); curY += tileHeight) {
+      for(; curX < (startX + this.image.width); curX += tileWidth) {
+        tiles.push( new Tile(this.image, curX, curY, tileWidth, tileHeight) );
+      }
+    }
+
+    return tiles;
+  }
+
+  createImageObject() {
+    let img = new Image();
+    img.onload = () => {
+      console.log(`Successfully loaded '${img.src}'`);
+      this.loaded = true;
+    };
+    img.onerror = () => {
+      console.log(`Failed to load '${img.src}'`);
+      this.loaded = true;
+    };
+
+    return img;
+  }
 }
 
-SpriteRepository.prototype.fetch = function(key) {
-  return this.sprites[key];
-};
+class Tile {
+  constructor(sprite, startX, startY, tileWidth, tileHeight) {
+    this.sprite = sprite;
+    this.startX = startX;
+    this.startY = startY;
+    this.tileWidth = tileWidth;
+    this.tileHeight = tileHeight;
+  }
 
-SpriteRepository.prototype.extractName = function(path) {
-  if (path[0] === '.' )
-    path = path.slice(1);
+  renderAt(context, x, y, renderedWidth, renderedHeight) {
+    context.drawImage(
+      this.sprite,
+      this.startX,
+      this.startY,
+      renderedWidth,
+      renderedHeight,
+      x,
+      y,
+      this.tileWidth,
+      this.tileHeight
+    );
+  }
+}
 
-  return ( path.split('.')[0].split('/').pop() );
-};
+class Frame {
+  constructor(tiles, renderFn) {
+    this.tiles = tiles;
+    this.renderFn = renderFn;
+  }
 
-SpriteRepository.prototype.asTiles = function(spriteKey, startX, startY, tileWidth, tileHeight, regionWidth, regionHeight) {
-  var tiles = [];
-  var curX = startX;
-  var curY = startY;
-  var sprite = this.sprites[spriteKey];
-  /*
-  img	Specifies the image, canvas, or video element to use
-  sx	Optional. The x coordinate where to start clipping
-  sy	Optional. The y coordinate where to start clipping
-  swidth	Optional. The width of the clipped image
-  sheight Optional. The height of the clipped image
-  */
-  for(var curY = startY; curY < (startY + regionHeight); curY += tileHeight) {
-    for(var curX = startX; curX < (startX + regionWidth); curX += tileWidth) {
-      tiles.push( new Tile(sprite, curX, curY, tileWidth, tileHeight) );
+  render(context, x, y) {
+    this.renderFn(this.tiles, context, x, y);
+  }
+}
+
+class Animation {
+  constructor(frames, shouldLoop) {
+    this.frames = frames;
+    this.currentFrameIndex = 0;
+    this.ANIMATION_COMPLETED = -1;
+    this.currentTimer = null;
+    this.shouldLoop = shouldLoop;
+  }
+
+  play(speed) {
+    this.currentTimer = setInterval(() => {
+      if (this.shouldLoop) {
+        this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
+      } else {
+        this.currentFrameIndex += 1;
+        if (this.currentFrameIndex === this.frames.length) {
+          this.currentFrameIndex = this.ANIMATION_COMPLETED;
+        }
+      }
+    }, speed);
+  }
+
+  stop() {
+    if (this.currentTimer) {
+      window.clearInterval(this.currentTimer);
     }
   }
 
-  return tiles;
-};
+  render(context, x, y) {
+    if (this.currentFrameIndex !== this.ANIMATION_COMPLETED) {
+      this.frames[this.currentFrameIndex].render(context, x, y);
+    }
+  }
+}

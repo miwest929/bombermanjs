@@ -2,8 +2,6 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
-var COLS_MAP = 35;
-var ROWS_MAP = 25;
 var BLOCK_WIDTH = 20;
 var BLOCK_HEIGHT = 20;
 var index = 0;
@@ -49,12 +47,7 @@ var renderBackground = function() {
 };
 
 var renderBlock = function(x, y, tile) {
-  ctx.drawImage(
-    spritesRepo.fetch('stages').image,
-    tile.srcX,
-    tile.srcY,
-    14, 14, x, y, BLOCK_WIDTH, BLOCK_HEIGHT
-  );
+  tile.renderAt(ctx, x, y, 14, 14);
 };
 
 var getPlayerTile = function(player) {
@@ -71,7 +64,7 @@ var renderMap = function(map, x, y) {
   for(var rowIdx = 0, curY = y; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
     for(var colIdx = 0, curX = x; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
       if (map.map[rowIdx][colIdx] !== ' ') {
-        renderBlock(curX, curY, blockTiles[ map.map[rowIdx][colIdx] ][0]);
+        renderBlock(curX, curY, blockTiles[ map.map[rowIdx][colIdx] ]);
       }
 
       if (debug.collision) {
@@ -83,20 +76,12 @@ var renderMap = function(map, x, y) {
 
         if (rowIdx === loc.y && colIdx === loc.x) {
           ctx.fillStyle = "green";
-
-          // fillRect(x, y, width, height)
           ctx.fillRect(player.x, player.y, BLOCK_WIDTH, BLOCK_HEIGHT);
         }
       }
 
       if (rowIdx === loc.y && colIdx === loc.x) {
-        console.log(`Player Tile is at Row ${loc.y} and Col ${loc.x}`)
-        ctx.drawImage(
-          spritesRepo.fetch('bomberman').image,
-          tiles[index].srcX,
-          tiles[index].srcY,
-          16, 32, player.x, player.y, BLOCK_WIDTH, BLOCK_HEIGHT
-        );
+        player.render(ctx);
       }
     }
   }
@@ -107,93 +92,68 @@ var spritesRepo = new SpriteRepository([
   './src/img/stages.png'
 ]);
 
+let bombermanImg = spritesRepo.fetch('bomberman').image
 var bombermanTiles = {
-  "up": [{srcX: 0, srcY: 0}, {srcX: 16, srcY: 0}, {srcX: 32, srcY: 0}],
-  "right": [{srcX: 0, srcY: 32}, {srcX: 16, srcY: 32}, {srcX: 32, srcY: 32}],
-  "down": [{srcX: 0, srcY: 64}, {srcX: 16, srcY: 64}, {srcX: 32, srcY: 64}],
-  "left": [{srcX: 0, srcY: 96}, {srcX: 16, srcY: 96}, {srcX: 32, srcY: 96}]
+  "up": [
+    new Tile(bombermanImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 16, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 32, 0, BLOCK_WIDTH, BLOCK_HEIGHT)
+  ],
+  "right": [
+    new Tile(bombermanImg, 0, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 16, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 32, 32, BLOCK_WIDTH, BLOCK_HEIGHT)
+  ],
+  "down": [
+    new Tile(bombermanImg, 0, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 16, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 32, 64, BLOCK_WIDTH, BLOCK_HEIGHT)
+  ],
+  "left": [
+    new Tile(bombermanImg, 0, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 16, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
+    new Tile(bombermanImg, 32, 96, BLOCK_WIDTH, BLOCK_HEIGHT)
+  ]
 };
 
 var blockTiles = {
-  "B": [{srcX: 0, srcY: 14}],
-  "HB": [{srcX: 85, srcY: 14}]
+  "B": new Tile(spritesRepo.fetch('stages').image, 0, 14, BLOCK_WIDTH, BLOCK_HEIGHT),
+  "HB": new Tile(spritesRepo.fetch('stages').image, 85, 14, BLOCK_WIDTH, BLOCK_HEIGHT)
 };
 
+let gameManager = new GameManager(ctx, false);
+
 // map is 50x40 tiles large
-var map = new Map(COLS_MAP, ROWS_MAP);
+console.log("creating new Map");
+let COLS_MAP = 35;
+let ROWS_MAP = 25;
+let map = new Map(COLS_MAP, ROWS_MAP);
+gameManager.register(map, "map");
 
 var emptyPos = map.findEmpty();
-var player = new Player(emptyPos.x + 7, emptyPos.y + 7, emptyPos.tileX, emptyPos.tileY);
+var player = new Player(bombermanTiles, emptyPos.x, emptyPos.y, emptyPos.tileX, emptyPos.tileY);
+gameManager.register(player, "player");
 var tiles = bombermanTiles['up'];
 var collideTileX = undefined;
 var collideTileY = undefined;
 
-var collidesWith = function(tileRow, tileCol, map) {
-  // For debugging purposes...
-  collideTileX = tileRow;
-  collideTileY = tileCol;
+var main = function() {
+  render();
+  update();
 
-  return (map.map[tileRow][tileCol] !== ' ');
-};
+  window.requestAnimationFrame(main);
+}
 
-var collidesLeft = function(player, map) {
-  var location = getPlayerTile(player);
-  var tileCol = location.x;
-  var tileRow = location.y;
-
-  return collidesWith(tileRow, tileCol - 1, map);
-};
-
-var collidesRight = function(player, map) {
-  var location = getPlayerTile(player, map);
-  var tileCol = location.x;
-  var tileRow = location.y;
-
-  return collidesWith(tileRow, tileCol + 1, map);
-};
-
-var collidesUp = function(player, map) {
-  var location = getPlayerTile(player, map);
-  var tileCol = location.x;
-  var tileRow = location.y;
-
-  return collidesWith(tileRow - 1, tileCol, map);
-};
-
-var collidesDown = function(player, map) {
-  var location = getPlayerTile(player, map);
-  var tileCol = location.x;
-  var tileRow = location.y;
-
-  return collidesWith(tileRow + 1, tileCol, map);
-};
-
-setInterval(function () {
+var render = function() {
   renderBackground();
-  renderMap(map, 20, 20);
 
-  if (keys['up']) {
-    if (!collidesUp(player, map))
-      player.moveUp();
-    tiles = bombermanTiles['up'];
-    index = (index + 1) % 3;
-  }
-  else if (keys['down']) {
-    if (!collidesDown(player, map))
-      player.moveDown();
-    tiles = bombermanTiles['down'];
-    index = (index + 1) % 3;
-  }
-  else if (keys['left']) {
-    if (!collidesLeft(player, map))
-      player.moveLeft();
-    tiles = bombermanTiles['left'];
-    index = (index + 1) % 3;
-  }
-  else if (keys['right']) {
-    if (!collidesRight(player, map))
-      player.moveRight();
-    tiles = bombermanTiles['right'];
-    index = (index + 1) % 3;
-  }
-}, 100);
+//  gameManager.renderWorld(ctx);
+  renderMap(map, 0, 0);//20, 20);
+}
+
+var update = function() {
+  player.handleKeyInput(keys);
+  player.update(gameManager);
+}
+
+main();
