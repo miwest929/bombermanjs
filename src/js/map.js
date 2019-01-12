@@ -7,13 +7,10 @@ class Map {
   }
 
   render(context) {
-    for(var rowIdx = 0, curY = y; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
-      for(var colIdx = 0, curX = x; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
+    for(var rowIdx = 0, curY = 0; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
+      for(var colIdx = 0, curX = 0; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
         if (this.map[rowIdx][colIdx] !== ' ') {
-          renderBlock(curX, curY, this.tiles[ this.map[rowIdx][colIdx] ]);
-        }
-
-        if (debug.collision) {
+          this.renderBlock(context, curX, curY, this.tiles[ this.map[rowIdx][colIdx] ]);
         }
       }
     }

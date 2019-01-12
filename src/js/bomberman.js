@@ -46,47 +46,6 @@ var renderBackground = function() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 };
 
-var renderBlock = function(x, y, tile) {
-  tile.renderAt(ctx, x, y, 14, 14);
-};
-
-var getPlayerTile = function(player) {
-  return {x: player.tileColIndex(), y: player.tileRowIndex()};
-};
-
-var renderMap = function(map, x, y) {
-  var curX = x;
-  var curY = y;
-  var loc = getPlayerTile(player)
-
-  // rows -> along y-axis
-  // cols -> along x-axis
-  for(var rowIdx = 0, curY = y; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
-    for(var colIdx = 0, curX = x; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
-      if (map.map[rowIdx][colIdx] !== ' ') {
-        renderBlock(curX, curY, blockTiles[ map.map[rowIdx][colIdx] ]);
-      }
-
-      if (debug.collision) {
-        if (rowIdx === collideTileX && colIdx === collideTileY) {
-          console.log(`Collision Tile is at Row ${rowIdx} and Col ${colIdx}`)
-          ctx.fillStyle = "red";
-          ctx.fillRect(curX, curY, BLOCK_WIDTH, BLOCK_HEIGHT);
-        }
-
-        if (rowIdx === loc.y && colIdx === loc.x) {
-          ctx.fillStyle = "green";
-          ctx.fillRect(player.x, player.y, BLOCK_WIDTH, BLOCK_HEIGHT);
-        }
-      }
-
-      if (rowIdx === loc.y && colIdx === loc.x) {
-        player.render(ctx);
-      }
-    }
-  }
-};
-
 var spritesRepo = new SpriteRepository([
   './src/img/bomberman.png',
   './src/img/stages.png'
@@ -127,7 +86,7 @@ let gameManager = new GameManager(ctx, false);
 console.log("creating new Map");
 let COLS_MAP = 35;
 let ROWS_MAP = 25;
-let map = new Map(COLS_MAP, ROWS_MAP);
+let map = new Map(COLS_MAP, ROWS_MAP, blockTiles);
 gameManager.register(map, "map");
 
 var emptyPos = map.findEmpty();
@@ -146,9 +105,7 @@ var main = function() {
 
 var render = function() {
   renderBackground();
-
-//  gameManager.renderWorld(ctx);
-  renderMap(map, 0, 0);//20, 20);
+  gameManager.renderWorld(ctx);
 }
 
 var update = function() {
