@@ -99,6 +99,17 @@ class Frame {
   }
 }
 
+//let renderFn = (tiles, context, x, y) => {
+//  tiles[0].renderAt(context, x, y, 16, 32);
+//}
+let createAnimation = (tiles, renderFn, shouldLoop) => {
+  let frames = [];
+  for (let i = 0; i < tiles.length; i++) {
+    frames.push(new Frame([tiles[i]], renderFn));
+  }
+  return new Animation(frames, shouldLoop);
+}
+
 class Animation {
   constructor(frames, shouldLoop) {
     this.frames = frames;
@@ -116,6 +127,7 @@ class Animation {
         this.currentFrameIndex += 1;
         if (this.currentFrameIndex === this.frames.length) {
           this.currentFrameIndex = this.ANIMATION_COMPLETED;
+          this.stop();
         }
       }
     }, speed);

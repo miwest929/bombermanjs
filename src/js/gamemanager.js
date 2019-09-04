@@ -1,9 +1,62 @@
+/*
+The gameManager stores the map
+each cell in the map references an object registered with the GameManager
+*/
+let blankMap = (cols, rows) => {
+  let newMap = [];
+
+  for(let rowIdx = 0; rowIdx < rows; rowIdx++) {
+    let newRow = [];
+    for(let colIdx = 0; colIdx < cols; colIdx++) { newRow.push(' '); }
+
+    newMap.push(newRow);
+  }
+
+  return newMap;
+}
+
 class GameManager {
   constructor(ctx, debugMode) {
     this.ctx = ctx;
     this.objects = {};
     this.events = [];
+    this.tiles = {};
     this.debugMode = debugMode;
+
+    // initially the map is empty
+    this.mapRows = 0;
+    this.mapCols = 0;
+    this.map = [];
+  }
+
+  registerMap(map, tiles) {
+    this.mapRows = map.rows;
+    this.mapCols = map.cols;
+
+    let grid = map.map;
+    this.map = blankMap(map.cols, map.rows);
+    for(var ri = 0, curY = 0; ri < map.rows; ri++, curY += BLOCK_WIDTH) {
+      for(var ci = 0, curX = 0; ci < map.cols; ci++, curX += BLOCK_HEIGHT) {
+         let tile = tiles['HB'];
+         if (grid[ri][ci] == 'B') {
+           tile = tiles['B'];
+         }
+
+         let block = new Block(tile, curX, curY);
+         if (grid[ri][ci] != ' ') {
+           let key = "block." + ri + "." + ci;
+           this.register(block, key);
+           this.map[ri][ci] = key;
+         }
+      }
+    }
+  }
+
+  placeObject(obj, key, x, y) { //row, col) {
+    let row = Math.floor(y / BLOCK_HEIGHT);
+    let col = Math.floor(x / BLOCK_WIDTH);
+    this.register(obj, key);
+    this.map[row][col] = key;
   }
 
   register(gameObject, key) {
@@ -28,7 +81,17 @@ class GameManager {
   }
 
   renderWorld(ctx) {
-    for (let key in this.objects) {
+    for(var ri = 0, curY = 0; ri < this.mapRows; ri++, curY += BLOCK_WIDTH) {
+      for(var ci = 0, curX = 0; ci < this.mapCols; ci++, curX += BLOCK_HEIGHT) {
+        let key = this.map[ri][ci];
+        if (key !== ' ') {
+          this.objects[key].render(ctx); //, curX, curY);
+        }
+      }
+    }
+
+    this.objects['player'].render(ctx);
+    /*for (let key in this.objects) {
       let object = this.objects[key];
 
       if (object.constructor === Array) {
@@ -38,7 +101,7 @@ class GameManager {
       } else {
         object.render(ctx);
       }
-    }
+    }*/
   }
 
   executeEvents() {
@@ -47,6 +110,14 @@ class GameManager {
         e.consequenceFn(this);
       }
     });
+  }
+
+  addTiles(key, tiles) {
+    this.tiles[key] = tiles;
+  }
+
+  getTiles(key) {
+    return this.tiles[key];
   }
 
   // reset every registered game object
@@ -76,6 +147,20 @@ class GameManager {
 
     if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
       return true;
+    }
+
+    return false;
+  }
+
+  checkCollisionWith(objKey, velocity) {
+    for (let otherKey in this.objects) {
+      if (objKey === otherKey) {
+        continue;
+      }
+
+      if (this.checkForCollision(objKey, otherKey, velocity)) {
+        return true;
+      }
     }
 
     return false;

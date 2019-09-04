@@ -2,99 +2,116 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
-var BLOCK_WIDTH = 20;
-var BLOCK_HEIGHT = 20;
-var index = 0;
-var debug = {
-  collision: false
-};
+let gameManager = new GameManager(ctx, false);
 
-// TODO: Make this configurable
-debug.collision = false;
+class Block {
+  constructor(tile, x, y) {
+    this.tile = tile;
+    this.x = x;
+    this.y = y;
+  }
 
-var keys = {}
-var processKeyDownEvent = function(e) {
-  e = e || window.event;
+  render(ctx) {
+    this.tile.renderAt(ctx, this.x, this.y, 14, 14);
+  }
 
-  // up arrow
-  if (e.keyCode == '38') { keys['up'] = true; }
-  // down arrow
-  else if (e.keyCode == '40') { keys['down'] = true; }
-  // left arrow
-  else if (e.keyCode == '37') { keys['left'] = true; }
-  // right arrow
-  else if (e.keyCode == '39') { keys['right'] = true; }
-};
-document.onkeydown = processKeyDownEvent;
+  boundingBox() {
+    return new BoundingBox(this.x, this.y, 14, 14);
+  }
+}
 
-var processKeyUpEvent = function(e) {
-  e = e || window.event;
+class KeyManager {
+  constructor() {
+    // every key has following attrs: state, releasedLastAt
+    this.keys = {};
+  }
 
-   // up arrow
-  if (e.keyCode == '38') { keys['up'] = false; }
-   // down arrow
-  else if (e.keyCode == '40') { keys['down'] = false; }
-  // left arrow
-  else if (e.keyCode == '37') { keys['left'] = false; }
-  // right arrow
-  else if (e.keyCode == '39') { keys['right'] = false; }
-};
-document.onkeyup = processKeyUpEvent;
+  keyCode(name) {
+    let keyNameMap = {
+      "up": "38",
+      "down": "40",
+      "left": "37",
+      "right": "39",
+      "space": "32"
+    };
+
+    return keyNameMap[name];
+  }
+
+  wasReleasedRecently(key, millisecondsAgo) {
+    let code = this.keyCode(key);
+    if (!this.keys[code]) {
+      return false;
+    }
+
+    // key is still pressed (hasn't been released yet)
+    if (this.keys[code].state) {
+      return false;
+    }
+
+    return (this.timeNowInMilliseconds() - this.keys[code].lastReleasedAt) <= millisecondsAgo;
+  }
+
+  isPressed(key) {
+    let code = this.keyCode(key);
+    if (!this.keys[code]) {
+      return false;
+    }
+
+    return this.keys[code].state;
+  }
+
+  processKeyDownEvent(e) {
+    e = e || window.event;
+
+    if (!(e.keyCode in this.keys)) {
+      this.keys[e.keyCode] = {state: true, lastReleasedAt: null};
+    } else {
+      this.keys[e.keyCode].state = true;
+      this.keys[e.keyCode].lastReleasedAt = null;
+    }
+  }
+
+  processKeyUpEvent(e) {
+    e = e || window.event;
+
+    if (!(e.keyCode in this.keys)) {
+      this.keys[e.keyCode] = {state: false, lastReleasedAt: this.timeNowInMilliseconds()};
+    } else {
+      this.keys[e.keyCode].state = false;
+      this.keys[e.keyCode].lastReleasedAt = this.timeNowInMilliseconds()
+    }
+  }
+
+  timeNowInMilliseconds() {
+    return new Date().getTime();
+  }
+}
+keyboard = new KeyManager();
+document.onkeydown = (e) => { keyboard.processKeyDownEvent(e); }
+document.onkeyup = (e) => { keyboard.processKeyUpEvent(e); }
 
 var renderBackground = function() {
-  ctx.fillStyle = "rgb(200, 200, 200)";
+  ctx.fillStyle = "rgb(91, 127, 71)";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-};
-
-var spritesRepo = new SpriteRepository([
-  './src/img/bomberman.png',
-  './src/img/stages.png'
-]);
-
-let bombermanImg = spritesRepo.fetch('bomberman').image
-var bombermanTiles = {
-  "up": [
-    new Tile(bombermanImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 16, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 32, 0, BLOCK_WIDTH, BLOCK_HEIGHT)
-  ],
-  "right": [
-    new Tile(bombermanImg, 0, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 16, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 32, 32, BLOCK_WIDTH, BLOCK_HEIGHT)
-  ],
-  "down": [
-    new Tile(bombermanImg, 0, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 16, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 32, 64, BLOCK_WIDTH, BLOCK_HEIGHT)
-  ],
-  "left": [
-    new Tile(bombermanImg, 0, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 16, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
-    new Tile(bombermanImg, 32, 96, BLOCK_WIDTH, BLOCK_HEIGHT)
-  ]
 };
 
 var blockTiles = {
   "B": new Tile(spritesRepo.fetch('stages').image, 0, 14, BLOCK_WIDTH, BLOCK_HEIGHT),
   "HB": new Tile(spritesRepo.fetch('stages').image, 85, 14, BLOCK_WIDTH, BLOCK_HEIGHT)
 };
-
-let gameManager = new GameManager(ctx, false);
+gameManager.addTiles("blocks", blockTiles);
 
 // map is 50x40 tiles large
 console.log("creating new Map");
 let COLS_MAP = 35;
 let ROWS_MAP = 25;
 let map = new Map(COLS_MAP, ROWS_MAP, blockTiles);
-gameManager.register(map, "map");
+gameManager.registerMap(map, blockTiles);
 
 var emptyPos = map.findEmpty();
-var player = new Player(bombermanTiles, emptyPos.x, emptyPos.y, emptyPos.tileX, emptyPos.tileY);
+var player = new Player(emptyPos.x, emptyPos.y, gameManager);
 gameManager.register(player, "player");
-var tiles = bombermanTiles['up'];
-var collideTileX = undefined;
-var collideTileY = undefined;
 
 var main = function() {
   render();
@@ -109,7 +126,7 @@ var render = function() {
 }
 
 var update = function() {
-  player.handleKeyInput(keys);
+  player.handleKeyInput(keyboard);
   player.update(gameManager);
 }
 

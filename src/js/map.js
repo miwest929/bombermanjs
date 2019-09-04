@@ -6,9 +6,14 @@ class Map {
     this.tiles = tiles;
   }
 
+  //placeBomb(row, col, bomb) {
+  //  this.map[row][col] = {type: 'BOMB', obj: bomb};
+  //}
+
   render(context) {
     for(var rowIdx = 0, curY = 0; rowIdx < ROWS_MAP; rowIdx++, curY += BLOCK_WIDTH) {
       for(var colIdx = 0, curX = 0; colIdx < COLS_MAP; colIdx++, curX += BLOCK_HEIGHT) {
+        //if (this.map[rowIdx][colIdx] == 'BOMB') {
         if (this.map[rowIdx][colIdx] !== ' ') {
           this.renderBlock(context, curX, curY, this.tiles[ this.map[rowIdx][colIdx] ]);
         }

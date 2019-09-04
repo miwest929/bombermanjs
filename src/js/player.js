@@ -7,50 +7,32 @@ const DirectionState = {
 };
 
 class Player {
-  constructor(tiles, x, y, tileCol, tileRow) {
-    this.tiles = tiles;
+  constructor(x, y, gameManager) {
+    this.gameManager = gameManager;
     this.x = x;
     this.y = y;
-    this.tileRow = tileRow;
-    this.tileCol = tileCol;
     this.baseSpeedIncrement = 0.16665;
     this.baseSpeed = 1.3335;
     this.directionState = DirectionState.STILL
 
+    this.createAnimations();
+    this.animation = this.rightAnim;
+    this.velocity = {x: 0, y: 0};
+
+    // power up attributes
+    this.maxBombsAtOnce = 1;
+    this.bombBlastLength = 1;
+    this.currentBombLaidCount = 0;
+  }
+
+  createAnimations() {
     let renderFn = (tiles, context, x, y) => {
       tiles[0].renderAt(context, x, y, 16, 32);
     }
-
-    let upMove1 = new Frame([tiles["up"][0]], renderFn);
-    let upMove2 = new Frame([tiles["up"][1]], renderFn);
-    let upMove3 = new Frame([tiles["up"][2]], renderFn);
-    this.upAnim = new Animation([upMove1, upMove2, upMove3], true);
-
-    let rightMove1 = new Frame([tiles["right"][0]], renderFn);
-    let rightMove2 = new Frame([tiles["right"][1]], renderFn);
-    let rightMove3 = new Frame([tiles["right"][2]], renderFn);
-    this.rightAnim = new Animation([rightMove1, rightMove2, rightMove3], true);
-
-    let downMove1 = new Frame([tiles["down"][0]], renderFn);
-    let downMove2 = new Frame([tiles["down"][1]], renderFn);
-    let downMove3 = new Frame([tiles["down"][2]], renderFn);
-    this.downAnim = new Animation([downMove1, downMove2, downMove3], true);
-
-    let leftMove1 = new Frame([tiles["left"][0]], renderFn);
-    let leftMove2 = new Frame([tiles["left"][1]], renderFn);
-    let leftMove3 = new Frame([tiles["left"][2]], renderFn);
-    this.leftAnim = new Animation([leftMove1, leftMove2, leftMove3], true);
-
-    this.animation = this.rightAnim;
-    this.velocity = {x: 0, y: 0};
-  }
-
-  tileColIndex() {
-    return Math.floor(this.tileCol);
-  }
-
-  tileRowIndex() {
-    return Math.floor(this.tileRow);
+    this.upAnim = createAnimation(moveUp, renderFn, true);
+    this.rightAnim = createAnimation(moveRight, renderFn, true);
+    this.downAnim = createAnimation(moveDown, renderFn, true);
+    this.leftAnim = createAnimation(moveLeft, renderFn, true);
   }
 
   changePlayerAnimation(newAnimation) {
@@ -62,26 +44,37 @@ class Player {
     this.animation.play(125);
   }
 
-  handleKeyInput(keys) {
-    if (keys['up']) {
+  handleKeyInput(keyboard) {
+    if (keyboard.isPressed('up')) {
       this.moveUp();
-    } else if (keys['down']) {
+    } else if (keyboard.isPressed('down')) {
       this.moveDown();
-    } else if (keys['left']) {
+    } else if (keyboard.isPressed('left')) {
       this.moveLeft();
-    } else if (keys['right']) {
+    } else if (keyboard.isPressed('right')) {
       this.moveRight();
+    } else if (keyboard.wasReleasedRecently('space', 10)) {
+      this.layBomb();
     } else {
       this.still();
     }
   }
 
   update(gameManager) {
-    if (gameManager.checkForCollision("player", "map", this.velocity)) {
+    if (gameManager.checkCollisionWith("player", this.velocity)) {
       this.still();
     } else {
       this.x += this.velocity.x;
       this.y += this.velocity.y;
+    }
+  }
+
+  layBomb() {
+    if (this.currentBombLaidCount < this.maxBombsAtOnce) {
+      this.currentBombLaidCount += 1;
+      let bomb = new Bomb(this.x, this.y, 1, this.gameManager);
+      let key = "bomb." + this.x + "." + this.y;
+      gameManager.placeObject(bomb, key, this.x + (BLOCK_WIDTH/2), this.y + (BLOCK_HEIGHT/2));
     }
   }
 
@@ -126,7 +119,6 @@ class Player {
     this.directionState = DirectionState.LEFT;
     this.velocity.y = 0;
     this.velocity.x = -this.baseSpeed;
-    //this.tileCol += -this.baseSpeedIncrement;
   }
 
   moveRight() {
@@ -137,11 +129,10 @@ class Player {
     this.directionState = DirectionState.RIGHT;
     this.velocity.y = 0;
     this.velocity.x = this.baseSpeed;
-    //this.tileCol += this.baseSpeedIncrement;
   }
 
   boundingBox() {
-    return new BoundingBox(this.x+(BLOCK_WIDTH/5), this.y+(BLOCK_HEIGHT/5), BLOCK_WIDTH/4*3, BLOCK_HEIGHT/4*3);
+    return new BoundingBox(this.x+(BLOCK_WIDTH/8), this.y+(BLOCK_HEIGHT/8), BLOCK_WIDTH/4*3, BLOCK_HEIGHT/4*3);
   }
 
   render(context) {
