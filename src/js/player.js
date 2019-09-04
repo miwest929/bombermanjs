@@ -21,8 +21,13 @@ class Player {
 
     // power up attributes
     this.maxBombsAtOnce = 1;
+    this.bombStrength = 1;
     this.bombBlastLength = 1;
     this.currentBombLaidCount = 0;
+
+    this.gameManager.registerObserver("bomb_exploded", () => {
+      this.currentBombLaidCount -= 1;
+    });
   }
 
   createAnimations() {
@@ -72,8 +77,9 @@ class Player {
   layBomb() {
     if (this.currentBombLaidCount < this.maxBombsAtOnce) {
       this.currentBombLaidCount += 1;
-      let bomb = new Bomb(this.x, this.y, 1, this.gameManager);
+      let bomb = new Bomb(this.bombStrength, this.gameManager);
       let key = "bomb." + this.x + "." + this.y;
+      console.log("PLACING BOMB");
       gameManager.placeObject(bomb, key, this.x + (BLOCK_WIDTH/2), this.y + (BLOCK_HEIGHT/2));
     }
   }

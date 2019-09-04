@@ -99,13 +99,14 @@ class Frame {
   }
 }
 
-//let renderFn = (tiles, context, x, y) => {
-//  tiles[0].renderAt(context, x, y, 16, 32);
-//}
 let createAnimation = (tiles, renderFn, shouldLoop) => {
   let frames = [];
   for (let i = 0; i < tiles.length; i++) {
-    frames.push(new Frame([tiles[i]], renderFn));
+    let frameTiles = tiles[i];
+    if (!Array.isArray(frameTiles)) {
+      frameTiles = [frameTiles];
+    }
+    frames.push(new Frame(frameTiles, renderFn));
   }
   return new Animation(frames, shouldLoop);
 }

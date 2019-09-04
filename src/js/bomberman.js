@@ -11,8 +11,8 @@ class Block {
     this.y = y;
   }
 
-  render(ctx) {
-    this.tile.renderAt(ctx, this.x, this.y, 14, 14);
+  render(ctx, x, y) {
+    this.tile.renderAt(ctx, x, y, 14, 14);
   }
 
   boundingBox() {

@@ -27,6 +27,8 @@ class GameManager {
     this.mapRows = 0;
     this.mapCols = 0;
     this.map = [];
+
+    this.observers = {};
   }
 
   registerMap(map, tiles) {
@@ -56,7 +58,23 @@ class GameManager {
     let row = Math.floor(y / BLOCK_HEIGHT);
     let col = Math.floor(x / BLOCK_WIDTH);
     this.register(obj, key);
+    console.log("row = " + row + ", col = " + col);
     this.map[row][col] = key;
+  }
+
+  publish(event_name) {
+    let observers = this.observers[event_name] || [];
+    for (let i = 0; i < observers.length; i++) {
+      observers[i]();
+    }
+  }
+
+  registerObserver(event_name, notifyFn) {
+    if (!this.observers[event_name]) {
+      this.observers[event_name] = [notifyFn];
+    } else {
+      this.observers[event_name].push(notifyFn);
+    }
   }
 
   register(gameObject, key) {
@@ -85,7 +103,7 @@ class GameManager {
       for(var ci = 0, curX = 0; ci < this.mapCols; ci++, curX += BLOCK_HEIGHT) {
         let key = this.map[ri][ci];
         if (key !== ' ') {
-          this.objects[key].render(ctx); //, curX, curY);
+          this.objects[key].render(ctx, curX, curY);
         }
       }
     }
