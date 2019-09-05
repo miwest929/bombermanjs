@@ -84,7 +84,7 @@ class GameManager {
 
   unregister(key) {
     this.objects[key].objectId = null;
-    this.objects[key] = null;
+    delete this.objects[key];
   }
 
   registerCollection(gameObject, collectionKey) {
@@ -208,11 +208,16 @@ class GameManager {
     let gameObjectTwo = this.objects[gameObjectTwoKey];
 
     if (!(gameObjectOne && gameObjectTwo)) {
-      console.log(`[checkForCollision] Warning: Game object with key of either '${gameObjectOneKey}' or '${gameObjectTwoKey} does not exist.'`);
+      console.log(`[checkForCollision] Warning: Game object with key of either '${gameObjectOneKey}' or '${gameObjectTwoKey}' does not exist.`);
       return;
     }
 
     let bbOne = gameObjectOne.boundingBox(); // must be a scalar
+    // a null boundingBox indicates that object shouldn't
+    // collide with anything
+    if (!bbOne) {
+      return;
+    }
 
     if (bbOne.constructor !== BoundingBox) {
       console.log("[checkForCollision] Warning: bbOne must be an instance of BoundingBox.");
@@ -223,6 +228,11 @@ class GameManager {
     bbOne.offsetBy(velocity);
 
     let bbTwo = gameObjectTwo.boundingBox(); // can be an array of BoundingBox
+    // a null boundingBox indicates that object shouldn't
+    // collide with anything
+    if (!bbTwo) {
+      return;
+    }
 
     let bbTwoArr;
     if (bbTwo.constructor === Array) {

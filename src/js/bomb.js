@@ -95,7 +95,7 @@ class Bomb {
       let reach = this.strength * 16
       return new BoundingBox(this.x - reach, this.y, (BLOCK_WIDTH+2*reach)*0.8, BLOCK_HEIGHT*0.8);
     } else {
-      return [];
+      return null;
     }
   }
 
@@ -105,7 +105,6 @@ class Bomb {
   // tracked by the game manager then return false
   update(gameManager) {
     if (this.state === BombState.DEAD) {
-      console.log("BOMB IS DEEADD");
       return false;
     }
 
