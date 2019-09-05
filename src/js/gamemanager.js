@@ -39,13 +39,14 @@ class GameManager {
     this.map = blankMap(map.cols, map.rows);
     for(var ri = 0, curY = 0; ri < map.rows; ri++, curY += BLOCK_WIDTH) {
       for(var ci = 0, curX = 0; ci < map.cols; ci++, curX += BLOCK_HEIGHT) {
-         let tile = tiles['HB'];
+         let block = null;
          if (grid[ri][ci] == 'B') {
-           tile = tiles['B'];
+           block = new Block(this, curX, curY);
+         } else if (grid[ri][ci] == 'HB') {
+           block = new HardBlock(this, curX, curY);
          }
 
-         let block = new Block(tile, curX, curY);
-         if (grid[ri][ci] != ' ') {
+         if (block) {
            let key = "block." + ri + "." + ci;
            this.register(block, key);
            this.map[ri][ci] = key;
@@ -54,12 +55,11 @@ class GameManager {
     }
   }
 
-  placeObject(obj, key, x, y) { //row, col) {
+  placeObject(obj, key, x, y) {
     let row = Math.floor(y / BLOCK_HEIGHT);
     let col = Math.floor(x / BLOCK_WIDTH);
-    this.register(obj, key);
-    console.log("row = " + row + ", col = " + col);
     this.map[row][col] = key;
+    this.register(obj, key);
   }
 
   publish(event_name) {
@@ -78,12 +78,17 @@ class GameManager {
   }
 
   register(gameObject, key) {
+    gameObject.objectId = key;
     this.objects[key] = gameObject;
+  }
+
+  unregister(key) {
+    this.objects[key].objectId = null;
+    this.objects[key] = null;
   }
 
   registerCollection(gameObject, collectionKey) {
     this.objects[collectionKey] = this.objects[collectionKey] || [];
-
     this.objects[collectionKey].push(gameObject);
   }
 
@@ -98,12 +103,25 @@ class GameManager {
     return this.objects[key];
   }
 
+  updateWorld() {
+    for (let key in this.objects) {
+      if (this.objects[key]) {
+        let objStatus = this.objects[key].update(this);
+        if (!objStatus) {
+          this.unregister(key);
+        }
+      }
+    }
+  }
+
   renderWorld(ctx) {
     for(var ri = 0, curY = 0; ri < this.mapRows; ri++, curY += BLOCK_WIDTH) {
       for(var ci = 0, curX = 0; ci < this.mapCols; ci++, curX += BLOCK_HEIGHT) {
         let key = this.map[ri][ci];
-        if (key !== ' ') {
-          this.objects[key].render(ctx, curX, curY);
+        if (key !== ' ' && this.objects[key]) {
+          this.objects[key].render(ctx); //, curX, curY);
+        } else {
+          this.map[ri][ci] = ' ';
         }
       }
     }

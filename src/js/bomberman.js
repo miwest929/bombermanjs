@@ -2,21 +2,59 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
-let gameManager = new GameManager(ctx, false);
+let gameManager = new GameManager(ctx, true);
 
 class Block {
-  constructor(tile, x, y) {
-    this.tile = tile;
+  constructor(manager, x, y) {
+    this.gameManager = manager;
+    this.x = x;
+    this.y = y;
+    this.shouldDestroy = false;
+
+    let renderFn = (tiles, context) => {
+      tiles[0].renderAt(context, this.x, this.y, 16, 32);
+    }
+    this.destroyAnim = createAnimation(blockDestroy, renderFn, false);
+  }
+
+  destroy() {
+    this.shouldDestroy = true;
+  }
+
+  update() {
+    return true;
+  }
+
+  render(ctx) {
+    if (this.shouldDestroy) {
+      this.destroyAnim.render(ctx);
+    } else {
+      blockTile.renderAt(ctx, this.x, this.y, 16, 16);
+    }
+  }
+
+  boundingBox() {
+    return new BoundingBox(this.x, this.y, 19, 19);
+  }
+}
+
+class HardBlock {
+  constructor(manager, x, y) {
+    this.gameManager = manager;
     this.x = x;
     this.y = y;
   }
 
-  render(ctx, x, y) {
-    this.tile.renderAt(ctx, x, y, 14, 14);
+  render(ctx) {
+    hardBlock.renderAt(ctx, this.x, this.y, 16, 16);
+  }
+
+  update() {
+    return true;
   }
 
   boundingBox() {
-    return new BoundingBox(this.x, this.y, 14, 14);
+    return new BoundingBox(this.x, this.y, 19, 19);
   }
 }
 
@@ -127,6 +165,7 @@ var render = function() {
 
 var update = function() {
   player.handleKeyInput(keyboard);
+  gameManager.updateWorld();
   player.update(gameManager);
 }
 

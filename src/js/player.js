@@ -11,8 +11,7 @@ class Player {
     this.gameManager = gameManager;
     this.x = x;
     this.y = y;
-    this.baseSpeedIncrement = 0.16665;
-    this.baseSpeed = 1.3335;
+    this.baseSpeed = 1.0;
     this.directionState = DirectionState.STILL
 
     this.createAnimations();
@@ -31,8 +30,8 @@ class Player {
   }
 
   createAnimations() {
-    let renderFn = (tiles, context, x, y) => {
-      tiles[0].renderAt(context, x, y, 16, 32);
+    let renderFn = (tiles, context) => {
+      tiles[0].renderAt(context, this.x, this.y, 16, 32);
     }
     this.upAnim = createAnimation(moveUp, renderFn, true);
     this.rightAnim = createAnimation(moveRight, renderFn, true);
@@ -72,14 +71,15 @@ class Player {
       this.x += this.velocity.x;
       this.y += this.velocity.y;
     }
+
+    return true;
   }
 
   layBomb() {
     if (this.currentBombLaidCount < this.maxBombsAtOnce) {
       this.currentBombLaidCount += 1;
-      let bomb = new Bomb(this.bombStrength, this.gameManager);
+      let bomb = new Bomb(this.x, this.y, this.bombStrength, this.gameManager);
       let key = "bomb." + this.x + "." + this.y;
-      console.log("PLACING BOMB");
       gameManager.placeObject(bomb, key, this.x + (BLOCK_WIDTH/2), this.y + (BLOCK_HEIGHT/2));
     }
   }
@@ -102,7 +102,6 @@ class Player {
     this.directionState = DirectionState.UP;
     this.velocity.x = 0
     this.velocity.y = -this.baseSpeed;
-    //this.tileRow += -this.baseSpeedIncrement;
   }
 
   moveDown() {
@@ -114,7 +113,6 @@ class Player {
     this.directionState = DirectionState.DOWN;
     this.velocity.x = 0
     this.velocity.y = this.baseSpeed;
-    //this.tileRow += this.baseSpeedIncrement;
   }
 
   moveLeft() {

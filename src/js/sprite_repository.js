@@ -74,6 +74,8 @@ class Tile {
   }
 
   renderAt(context, x, y, renderedWidth, renderedHeight) {
+    // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+    // sWidth, sHeight -> width, height of sub-rectangle in source image
     context.drawImage(
       this.sprite,
       this.startX,
@@ -118,6 +120,7 @@ class Animation {
     this.ANIMATION_COMPLETED = -1;
     this.currentTimer = null;
     this.shouldLoop = shouldLoop;
+    this.onFinished = () => {};
   }
 
   play(speed) {
@@ -127,6 +130,7 @@ class Animation {
       } else {
         this.currentFrameIndex += 1;
         if (this.currentFrameIndex === this.frames.length) {
+          this.onFinished();
           this.currentFrameIndex = this.ANIMATION_COMPLETED;
           this.stop();
         }
@@ -140,9 +144,9 @@ class Animation {
     }
   }
 
-  render(context, x, y) {
+  render(context) {
     if (this.currentFrameIndex !== this.ANIMATION_COMPLETED) {
-      this.frames[this.currentFrameIndex].render(context, x, y);
+      this.frames[this.currentFrameIndex].render(context);
     }
   }
 }
