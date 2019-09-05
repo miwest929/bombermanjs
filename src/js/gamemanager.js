@@ -207,7 +207,7 @@ class GameManager {
       }
 
       if (this.checkForCollision(objKey, otherKey, velocity)) {
-        _collisionFn(otherKey);
+        _collisionFn(this.objects[otherKey]);
         hasCollided = true;
       }
     }
@@ -233,19 +233,18 @@ class GameManager {
       return;
     }
 
-    if (bbOne.constructor !== BoundingBox) {
-      console.log("[checkForCollision] Warning: bbOne must be an instance of BoundingBox.");
-      return;
-    }
-
-    // Take current velocity into account when checking for collisions.
-    bbOne.offsetBy(velocity);
-
     let bbTwo = gameObjectTwo.boundingBox(); // can be an array of BoundingBox
     // a null boundingBox indicates that object shouldn't
     // collide with anything
     if (!bbTwo) {
       return;
+    }
+
+    let bbOneArr;
+    if (bbOne.constructor === Array) {
+      bbOneArr = bbOne;
+    } else {
+      bbOneArr = [bbOne];
     }
 
     let bbTwoArr;
@@ -255,24 +254,32 @@ class GameManager {
       bbTwoArr = [bbTwo];
     }
 
-    for (let bbTwoIndex = 0; bbTwoIndex < bbTwoArr.length; bbTwoIndex++) {
-      let bbTwo = bbTwoArr[bbTwoIndex];
+    // Take current velocity into account when checking for collisions.
+    for (let idx = 0; idx < bbOneArr.length; idx++) {
+      bbOneArr[idx] = bbOneArr[idx].offsetBy(velocity);
+    }
 
-      // Check if BoundingBox is invalid so we don't get a false positive.
-      if (isNaN(bbTwo.x) || isNaN(bbTwo.y) || isNaN(bbTwo.width) || isNaN(bbTwo.height)) {
-        continue;
-      }
+    for (let bbOneIndex = 0; bbOneIndex < bbOneArr.length; bbOneIndex++) {
+      for (let bbTwoIndex = 0; bbTwoIndex < bbTwoArr.length; bbTwoIndex++) {
+        let bbOne = bbOneArr[bbOneIndex];
+        let bbTwo = bbTwoArr[bbTwoIndex];
 
-      if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
-        if (this.debugMode) {
-          ctx.fillStyle = 'red';
-          ctx.fillRect(bbOne.x, bbOne.y, bbOne.width, bbOne.height);
-
-          ctx.fillStyle = 'green';
-          ctx.fillRect(bbTwo.x, bbTwo.y, bbTwo.width, bbTwo.height);
+        // Check if BoundingBox is invalid so we don't get a false positive.
+        if (isNaN(bbTwo.x) || isNaN(bbTwo.y) || isNaN(bbTwo.width) || isNaN(bbTwo.height)) {
+          continue;
         }
 
-        return true;
+        if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
+          if (this.debugMode) {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(bbOne.x, bbOne.y, bbOne.width, bbOne.height);
+
+            ctx.fillStyle = 'green';
+            ctx.fillRect(bbTwo.x, bbTwo.y, bbTwo.width, bbTwo.height);
+          }
+
+          return true;
+        }
       }
     }
 

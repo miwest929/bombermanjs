@@ -20,7 +20,7 @@ class Player {
 
     // power up attributes
     this.maxBombsAtOnce = 1;
-    this.bombStrength = 1;
+    this.bombStrength = 2;
     this.bombBlastLength = 1;
     this.currentBombLaidCount = 0;
 
@@ -62,6 +62,9 @@ class Player {
     } else {
       this.still();
     }
+  }
+
+  destroy() {
   }
 
   update(gameManager) {

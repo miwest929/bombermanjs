@@ -2,7 +2,7 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
-let gameManager = new GameManager(ctx, true);
+let gameManager = new GameManager(ctx, false);
 let NO_VELOCITY = {x: 0, y: 0};
 
 class Block {
@@ -20,9 +20,14 @@ class Block {
 
   destroy() {
     this.shouldDestroy = true;
+    this.destroyAnim.play(75);
   }
 
   update() {
+    if (this.shouldDestroy) {
+      return false;
+    }
+
     return true;
   }
 
@@ -48,6 +53,10 @@ class HardBlock {
 
   render(ctx) {
     hardBlock.renderAt(ctx, this.x, this.y, 16, 16);
+  }
+
+  // object that refuse to die should return false
+  destroy() {
   }
 
   update() {
