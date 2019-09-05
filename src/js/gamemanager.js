@@ -15,6 +15,13 @@ let blankMap = (cols, rows) => {
   return newMap;
 }
 
+/*
+  Every registered game object is expected to implement the following interface:
+    - update
+    - render
+    - boundingBox
+    - destroy [logic for destroying the object. ends in unregistering from manager]
+*/
 class GameManager {
   constructor(ctx, debugMode) {
     this.ctx = ctx;
@@ -188,20 +195,27 @@ class GameManager {
     return false;
   }
 
-  checkCollisionWith(objKey, velocity) {
+  // Did object with key 'objKey' collide with
+  // any other object?
+  checkCollisionWith(objKey, velocity, collisionFn) {
+    let _collisionFn = collisionFn || (() => {})
+    let hasCollided = false;
+
     for (let otherKey in this.objects) {
       if (objKey === otherKey) {
         continue;
       }
 
       if (this.checkForCollision(objKey, otherKey, velocity)) {
-        return true;
+        _collisionFn(otherKey);
+        hasCollided = true;
       }
     }
 
-    return false;
+    return hasCollided;
   }
 
+  // Did the two specified objects collide with each other?
   // 'velocity' argument is for gameObjectOne.
   checkForCollision(gameObjectOneKey, gameObjectTwoKey, velocity) {
     let gameObjectOne = this.objects[gameObjectOneKey];

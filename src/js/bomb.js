@@ -99,6 +99,10 @@ class Bomb {
     }
   }
 
+  collidesFn(collidedObj) {
+    console.log(`Explosion collided with '${collidedObj}'`);
+  }
+
   // returns true if object is still alive
   //         false otherwise.
   // so if you no longer want this object to be
@@ -108,9 +112,7 @@ class Bomb {
       return false;
     }
 
-    if (gameManager.checkCollisionWith(this.objectId, 0)) {
-      console.log("BLOCK BLEW UP");
-    }
+    gameManager.checkCollisionWith(this.objectId, NO_VELOCITY, this.collidesFn)
 
     return true;
   }

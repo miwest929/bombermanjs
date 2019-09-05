@@ -3,6 +3,7 @@ var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
 let gameManager = new GameManager(ctx, true);
+let NO_VELOCITY = {x: 0, y: 0};
 
 class Block {
   constructor(manager, x, y) {
