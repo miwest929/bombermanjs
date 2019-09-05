@@ -76,7 +76,8 @@ class KeyManager {
     return keyNameMap[name];
   }
 
-  wasReleasedRecently(key, millisecondsAgo) {
+  wasReleasedRecently(key) {
+    let millisecondsAgo = 20;
     let code = this.keyCode(key);
     if (!this.keys[code]) {
       return false;

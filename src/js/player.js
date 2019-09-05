@@ -57,7 +57,7 @@ class Player {
       this.moveLeft();
     } else if (keyboard.isPressed('right')) {
       this.moveRight();
-    } else if (keyboard.wasReleasedRecently('space', 10)) {
+    } else if (keyboard.wasReleasedRecently('space')) {
       this.layBomb();
     } else {
       this.still();
