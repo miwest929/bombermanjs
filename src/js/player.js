@@ -55,7 +55,7 @@ class Player {
 
   createAnimations() {
     let renderFn = (tiles, context) => {
-      tiles[0].renderAt(context, this.x, this.y, 16, 32);
+      tiles[0].renderAt(context, this.x+5, this.y-16, 16, 32);
     }
     this.upAnim = createAnimation(moveUp, renderFn, true);
     this.rightAnim = createAnimation(moveRight, renderFn, true);
@@ -215,8 +215,7 @@ class Player {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x+1, this.y+(PLAYER_HEIGHT/2), BLOCK_WIDTH-1, BLOCK_HEIGHT-1);
-    //return new BoundingBox(this.x+(BLOCK_WIDTH/8), this.y+(BLOCK_HEIGHT/8), BLOCK_WIDTH/4*3, BLOCK_HEIGHT/4*3);
+    return new BoundingBox(this.x+1, this.y, BLOCK_WIDTH-1, BLOCK_HEIGHT-1);
   }
 
   render(context) {
