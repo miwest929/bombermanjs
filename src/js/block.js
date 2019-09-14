@@ -18,7 +18,7 @@ class Block {
       tiles[0].renderAt(context, this.x, this.y, 16, 16);
     }
     let disintegrateFn = () => {
-      if (randomWithBias(0.3)) {
+      if (randomWithBias(manager.powerProb)) {
         this.blockState = BlockState.POWERUP;
         let randomPowerUp = Math.floor(Math.random() * 5);
         if (randomPowerUp === 0) {

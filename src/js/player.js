@@ -20,6 +20,8 @@ const PowerUp = {
   SKULL: "SKULL"
 };
 
+MOVE_ANIMATION_SPEED = 125;
+
 class Player {
   constructor(x, y, gameManager) {
     this.gameManager = gameManager;
@@ -31,7 +33,7 @@ class Player {
 
     this.createAnimations();
     this.animation = this.rightAnim;
-    this.velocity = {x: 0, y: 0};
+    this.velocity = NO_VELOCITY;
 
     this.lives = 3;
 
@@ -111,14 +113,6 @@ class Player {
     }
   }
 
-  /*collisionFn(gameManager, obj) {
-    if (obj.powerUp) {
-      this.consumePowerUp(obj.powerUp);
-    } else {
-      this.still();
-    }
-  }*/
-
   update(gameManager) {
     if (this.playerState === PlayerState.DEAD) {
       return false;
@@ -144,6 +138,7 @@ class Player {
     return true;
   }
 
+  // TODO: It's weird that the Player object decides what the bomb's objectId is
   bombObjectId() {
     return `bomb.${Math.floor(this.x)}.${Math.floor(this.y)}`;
   }
@@ -153,7 +148,7 @@ class Player {
       this.currentBombLaidCount += 1;
 
       let x = this.x + (BLOCK_WIDTH / 2);
-      let y = this.y+(PLAYER_HEIGHT/2)+(BLOCK_HEIGHT/2);
+      let y = this.y + (BLOCK_HEIGHT / 2);
 
       // HACK to get the bomb to be neatly placed in middle of cell
       x = gameManager.adjustedX(x);
@@ -165,8 +160,7 @@ class Player {
 
   still() {
     this.directionState = DirectionState.STILL;
-    this.velocity.x = 0;
-    this.velocity.y = 0;
+    this.velocity = NO_VELOCITY;
     if (this.animation) {
       this.animation.stop();
     }
@@ -177,7 +171,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.upAnim, 125);
+    this.changePlayerAnimation(this.upAnim, MOVE_ANIMATION_SPEED);
     this.directionState = DirectionState.UP;
     this.velocity.x = 0
     this.velocity.y = -this.baseSpeed;
@@ -188,7 +182,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.downAnim, 125);
+    this.changePlayerAnimation(this.downAnim, MOVE_ANIMATION_SPEED);
     this.directionState = DirectionState.DOWN;
     this.velocity.x = 0
     this.velocity.y = this.baseSpeed;
@@ -198,7 +192,7 @@ class Player {
     if (this.directionState === DirectionState.LEFT) {
       return;
     }
-    this.changePlayerAnimation(this.leftAnim, 125);
+    this.changePlayerAnimation(this.leftAnim, MOVE_ANIMATION_SPEED);
     this.directionState = DirectionState.LEFT;
     this.velocity.y = 0;
     this.velocity.x = -this.baseSpeed;
@@ -208,7 +202,7 @@ class Player {
     if (this.directionState === DirectionState.RIGHT) {
       return;
     }
-    this.changePlayerAnimation(this.rightAnim, 125);
+    this.changePlayerAnimation(this.rightAnim, MOVE_ANIMATION_SPEED);
     this.directionState = DirectionState.RIGHT;
     this.velocity.y = 0;
     this.velocity.x = this.baseSpeed;

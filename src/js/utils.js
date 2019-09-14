@@ -1,9 +1,9 @@
 let getGameParameters = () => {
   const queryParams = new URLSearchParams(window.location.search);
-  const debug = queryParams.get('debug') == 'true';
 
   return {
-    'debug': debug
+    'debug': queryParams.get('debug'),
+    'powerprob': queryParams.get('powerprob')
   };
 }
 

@@ -28,7 +28,10 @@ class GameManager {
     this.objects = {};
     this.events = [];
     this.tiles = {};
-    this.debugMode = params['debug'] === true;
+
+    // Configurables
+    this.debugMode = params['debug'] === 'true';
+    this.powerProb = parseFloat(params['powerProb']) || 0.3;
 
     // initially the map is empty
     this.mapRows = 0;
@@ -104,11 +107,6 @@ class GameManager {
     delete this.objects[key];
   }
 
-  registerCollection(gameObject, collectionKey) {
-    this.objects[collectionKey] = this.objects[collectionKey] || [];
-    this.objects[collectionKey].push(gameObject);
-  }
-
   registerEvent(happensFn, consequenceFn) {
     this.events.push({
       happensFn: happensFn,
@@ -175,23 +173,6 @@ class GameManager {
         object.reset();
       }
     }
-  }
-
-  checkForCollisionInCollection(gameObjectOneKey, gameObjectCollectionKey, collectionIndex, velocity) {
-    let gameObjectCollection = this.objects[gameObjectCollectionKey];
-    let gameObjectOne = this.objects[gameObjectOneKey];
-    let gameObjectTwo = gameObjectCollection[collectionIndex];
-
-    let bbOne = gameObjectOne.boundingBox(); // must be a scalar
-    let bbTwo = gameObjectTwo.boundingBox(); // can be an array of BoundingBox
-
-    bbOne.offsetBy(velocity);
-
-    if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
-      return true;
-    }
-
-    return false;
   }
 
   // Did object with key 'objKey' collide with
@@ -270,6 +251,11 @@ class GameManager {
 
         if (this.checkBoundingBoxCollision(bbOne, bbTwo)) {
           if (this.debugMode) {
+            if (gameObjectOneKey === 'player') {
+              bbOne.log(gameObjectOneKey);
+              bbTwo.log(gameObjectTwoKey);
+            }
+
             ctx.fillStyle = 'red';
             ctx.fillRect(bbOne.x, bbOne.y, bbOne.width, bbOne.height);
 
@@ -339,5 +325,9 @@ class BoundingBox {
     this.y += velocity.y;
 
     return this;
+  }
+
+  log(prefix) {
+    console.log(`${prefix}: x=${this.x}, y=${this.y}, width=${this.width}, height=${this.height}`);
   }
 }
