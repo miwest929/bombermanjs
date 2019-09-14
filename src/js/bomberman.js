@@ -5,9 +5,11 @@ let centerY = (canvas.height / 2);
 let NO_VELOCITY = {x: 0, y: 0};
 
 let gameManager = new GameManager(ctx, getGameParameters());
+
 let keyboard = new KeyManager();
 document.onkeydown = (e) => { keyboard.processKeyDownEvent(e); }
 document.onkeyup = (e) => { keyboard.processKeyUpEvent(e); }
+
 let blockTiles = {
   "B": new Tile(spritesRepo.fetch('stages').image, 0, 14, BLOCK_WIDTH, BLOCK_HEIGHT),
   "HB": new Tile(spritesRepo.fetch('stages').image, 85, 14, BLOCK_WIDTH, BLOCK_HEIGHT)
