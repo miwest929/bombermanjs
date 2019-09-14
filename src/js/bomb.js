@@ -32,7 +32,12 @@ class Bomb {
   explodeBomb() {
     this.state = BombState.EXPLODED;
     this.animation.stop();
-    this.animation = this.explode2Anim;
+
+    this.animation = this.explode1Anim;
+    if (this.strength == 2) {
+      this.animation = this.explode2Anim;
+    }
+
     this.animation.play(75);
     this.gameManager.publish("bomb_exploded");
   }
@@ -102,8 +107,8 @@ class Bomb {
     }
   }
 
-  collidesFn(collidedObj) {
-    collidedObj.destroy();
+  collidesFn(gameManager, collidedObj) {
+    collidedObj.destroy(gameManager);
   }
 
   // returns true if object is still alive

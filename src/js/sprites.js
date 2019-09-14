@@ -1,52 +1,78 @@
 let spritesRepo = new SpriteRepository([
   './src/img/bomberman.png',
   './src/img/stages.png',
-  './src/img/bombs.png'
+  './src/img/bombs.png',
+  './src/img/SB_Accelerator.png',
+  './src/img/SB_Explosion_Expander.png',
+  './src/img/SB_Extra_Bomb.png',
+  './src/img/SB_Maximum_Explosion.png',
+  './src/img/SB_Skull.png'
 ]);
 let bombImg = spritesRepo.fetch('bombs').image;
 let bombermanImg = spritesRepo.fetch('bomberman').image;
 let stagesImg = spritesRepo.fetch('stages').image;
+let acceleratorImg = spritesRepo.fetch('SB_Accelerator').image;
+let explosionExpanderImg = spritesRepo.fetch('SB_Explosion_Expander').image;
+let extraBombImg = spritesRepo.fetch('SB_Extra_Bomb').image;
+let maximumExplosionImg = spritesRepo.fetch('SB_Maximum_Explosion').image;
+let skullImg = spritesRepo.fetch('SB_Skull').image;
 
-// block tiles
 let BLOCK_WIDTH = 20;
 let BLOCK_HEIGHT = 20;
+
+// power ups
+let accelerator = new Tile(acceleratorImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+let explosionExpander = new Tile(explosionExpanderImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+let extraBomb = new Tile(extraBombImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+let maximumExplosion = new Tile(maximumExplosionImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+let skull = new Tile(skullImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+// end of power ups
+
+// block tiles
 let blockTile = new Tile(stagesImg, 0, 14, BLOCK_WIDTH, BLOCK_HEIGHT);
 let hardBlock = new Tile(stagesImg, 85, 14, BLOCK_WIDTH, BLOCK_HEIGHT);
 
 //// block destroyed
-
-//// end of block destroyed
-//let stagesImg = spritesRepo.fetch('stages').image;
 let blockDestroy = [
-  new Tile(stagesImg, 0, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(stagesImg, 17, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(stagesImg, 34, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(stagesImg, 51, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(stagesImg, 68, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(stagesImg, 85, 28, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 0, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 17, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 34, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 51, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 68, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
+  new Tile(stagesImg, 85, 31, BLOCK_WIDTH, BLOCK_HEIGHT),
 ];
+//// end of block destroyed
 // end of block tiles
 
 // player animations
+let PLAYER_WIDTH = 16;
+let PLAYER_HEIGHT = 32;
 let moveUp = [
-  new Tile(bombermanImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 16, 0, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 32, 0, BLOCK_WIDTH, BLOCK_HEIGHT)
+  new Tile(bombermanImg, 0, 0, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 16, 0, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 32, 0, PLAYER_WIDTH, PLAYER_HEIGHT)
 ];
 let moveRight = [
-  new Tile(bombermanImg, 0, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 16, 32, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 32, 32, BLOCK_WIDTH, BLOCK_HEIGHT)
+  new Tile(bombermanImg, 0, 32, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 16, 32, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 32, 32, PLAYER_WIDTH, PLAYER_HEIGHT)
 ];
 let moveDown = [
-  new Tile(bombermanImg, 0, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 16, 64, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 32, 64, BLOCK_WIDTH, BLOCK_HEIGHT)
+  new Tile(bombermanImg, 0, 64, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 16, 64, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 32, 64, PLAYER_WIDTH, PLAYER_HEIGHT)
 ];
 let moveLeft = [
-  new Tile(bombermanImg, 0, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 16, 96, BLOCK_WIDTH, BLOCK_HEIGHT),
-  new Tile(bombermanImg, 32, 96, BLOCK_WIDTH, BLOCK_HEIGHT)
+  new Tile(bombermanImg, 0, 96, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 16, 96, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 32, 96, PLAYER_WIDTH, PLAYER_HEIGHT)
+];
+let PLAYER_DEATH = [
+  new Tile(bombermanImg, 0, 356, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 16, 356, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 32, 356, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 48, 356, PLAYER_WIDTH, PLAYER_HEIGHT),
+  new Tile(bombermanImg, 64, 356, PLAYER_WIDTH, PLAYER_HEIGHT)
 ];
 // end of player animations
 

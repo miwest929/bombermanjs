@@ -2,71 +2,22 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 var centerX = (canvas.width / 2);
 var centerY = (canvas.height / 2);
-let gameManager = new GameManager(ctx, false);
 let NO_VELOCITY = {x: 0, y: 0};
 
-class Block {
-  constructor(manager, x, y) {
-    this.gameManager = manager;
-    this.x = x;
-    this.y = y;
-    this.shouldDestroy = false;
+let getGameParameters = () => {
+  const queryParams = new URLSearchParams(window.location.search);
+  const debug = queryParams.get('debug') == 'true';
 
-    let renderFn = (tiles, context) => {
-      tiles[0].renderAt(context, this.x, this.y, 16, 32);
-    }
-    this.destroyAnim = createAnimation(blockDestroy, renderFn, false);
-  }
-
-  destroy() {
-    this.shouldDestroy = true;
-    this.destroyAnim.play(75);
-  }
-
-  update() {
-    if (this.shouldDestroy) {
-      return false;
-    }
-
-    return true;
-  }
-
-  render(ctx) {
-    if (this.shouldDestroy) {
-      this.destroyAnim.render(ctx);
-    } else {
-      blockTile.renderAt(ctx, this.x, this.y, 16, 16);
-    }
-  }
-
-  boundingBox() {
-    return new BoundingBox(this.x, this.y, 19, 19);
-  }
+  return {
+    'debug': debug
+  };
 }
 
-class HardBlock {
-  constructor(manager, x, y) {
-    this.gameManager = manager;
-    this.x = x;
-    this.y = y;
-  }
-
-  render(ctx) {
-    hardBlock.renderAt(ctx, this.x, this.y, 16, 16);
-  }
-
-  // object that refuse to die should return false
-  destroy() {
-  }
-
-  update() {
-    return true;
-  }
-
-  boundingBox() {
-    return new BoundingBox(this.x, this.y, 19, 19);
-  }
+let randomWithBias = (prob) => {
+  return Math.random() <= prob;
 }
+
+let gameManager = new GameManager(ctx, getGameParameters());
 
 class KeyManager {
   constructor() {
@@ -151,10 +102,8 @@ var blockTiles = {
 };
 gameManager.addTiles("blocks", blockTiles);
 
-// map is 50x40 tiles large
-console.log("creating new Map");
-let COLS_MAP = 35;
-let ROWS_MAP = 25;
+let COLS_MAP = 61;
+let ROWS_MAP = 31;
 let map = new Map(COLS_MAP, ROWS_MAP, blockTiles);
 gameManager.registerMap(map, blockTiles);
 

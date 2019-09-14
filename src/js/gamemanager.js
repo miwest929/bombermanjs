@@ -23,12 +23,12 @@ let blankMap = (cols, rows) => {
     - destroy [logic for destroying the object. ends in unregistering from manager]
 */
 class GameManager {
-  constructor(ctx, debugMode) {
+  constructor(ctx, params) {
     this.ctx = ctx;
     this.objects = {};
     this.events = [];
     this.tiles = {};
-    this.debugMode = debugMode;
+    this.debugMode = params['debug'] === true;
 
     // initially the map is empty
     this.mapRows = 0;
@@ -67,6 +67,16 @@ class GameManager {
     let col = Math.floor(x / BLOCK_WIDTH);
     this.map[row][col] = key;
     this.register(obj, key);
+  }
+
+  // adjust given x to be align with closest col
+  adjustedX(x) {
+    return Math.floor(x / BLOCK_WIDTH) * BLOCK_WIDTH;
+  }
+
+  // adjust given y to be align with closest row
+  adjustedY(y) {
+    return Math.floor(y / BLOCK_HEIGHT) * BLOCK_HEIGHT;
   }
 
   publish(event_name) {
@@ -134,17 +144,6 @@ class GameManager {
     }
 
     this.objects['player'].render(ctx);
-    /*for (let key in this.objects) {
-      let object = this.objects[key];
-
-      if (object.constructor === Array) {
-        object.forEach((o) => {
-          o.render(ctx);
-        });
-      } else {
-        object.render(ctx);
-      }
-    }*/
   }
 
   executeEvents() {
@@ -207,7 +206,7 @@ class GameManager {
       }
 
       if (this.checkForCollision(objKey, otherKey, velocity)) {
-        _collisionFn(this.objects[otherKey]);
+        _collisionFn(this, this.objects[otherKey]);
         hasCollided = true;
       }
     }
@@ -318,6 +317,12 @@ class GameManager {
     }
 
     return true; // boxes overlap
+  }
+
+  resetLevel(isGameOver) {
+    if (isGameOver) {
+      console.log("GAME IS OVER");
+    }
   }
 }
 
