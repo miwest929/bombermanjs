@@ -17,7 +17,7 @@ class Bomb {
     this.y = y;
     this.createAnimations();
     this.animation = this.bombAnim;
-    this.animation.play(200);
+    this.animation.playLoop(200);
     this.startFuse();
     this.objectId = null; // only null when not registered with the game manager
   }
@@ -46,7 +46,7 @@ class Bomb {
     let renderFn = (tiles, context) => {
       tiles[0].renderAt(context, this.x, this.y, 16, 16);
     };
-    this.bombAnim = createAnimation(unexplodeBomb, renderFn, true);
+    this.bombAnim = createAnimation(unexplodeBomb, renderFn);
 
     let allExplodedFn = () => {
       this.state = BombState.DEAD;
@@ -70,7 +70,7 @@ class Bomb {
       tiles[2].renderAt(context, this.x, this.y-16, 16, 16);
       tiles[2].renderAt(context, this.x, this.y+16, 16, 16);
     };
-    this.explode1Anim = createAnimation(explodingTiles, explode1RenderFn, false);
+    this.explode1Anim = createAnimation(explodingTiles, explode1RenderFn);
     this.explode1Anim.onFinished = allExplodedFn;
 
     let explode2RenderFn = (tiles, context) => {
@@ -84,7 +84,7 @@ class Bomb {
       tiles[2].renderAt(context, this.x, this.y-32, 16, 16);
       tiles[2].renderAt(context, this.x, this.y+32, 16, 16);
     };
-    this.explode2Anim = createAnimation(explodingTiles, explode2RenderFn, false);
+    this.explode2Anim = createAnimation(explodingTiles, explode2RenderFn);
     this.explode2Anim.onFinished = allExplodedFn;
 
     //this.horizontalExplosionAnim = createAnimation(horizontalExplosion, renderFn, false);

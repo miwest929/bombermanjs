@@ -18,7 +18,7 @@ gameManager.addTiles("blocks", blockTiles);
 
 let COLS_MAP = 61;
 let ROWS_MAP = 31;
-let map = new Map(COLS_MAP, ROWS_MAP, blockTiles);
+let map = new Map(COLS_MAP, ROWS_MAP, blockTiles, gameManager.tilesProb);
 gameManager.registerMap(map, blockTiles);
 
 let emptyPos = map.findEmpty();
@@ -39,6 +39,7 @@ let render = function() {
 
 let update = function() {
   player.handleKeyInput(keyboard);
+  gameManager.handleKeyInput(keyboard);
   gameManager.updateWorld();
   player.update(gameManager);
 }

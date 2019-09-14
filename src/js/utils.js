@@ -3,6 +3,7 @@ let getGameParameters = () => {
 
   return {
     'debug': queryParams.get('debug'),
+    'tilesprob': queryParams.get('tilesprob'),
     'powerprob': queryParams.get('powerprob')
   };
 }

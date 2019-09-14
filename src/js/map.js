@@ -1,7 +1,8 @@
 class Map {
-  constructor(cols, rows, tiles) {
+  constructor(cols, rows, tiles, probTiles) {
     this.cols = cols;
     this.rows = rows;
+    this.probOfTiles = probTiles;
     this.map = this.generate(cols, rows);
     this.tiles = tiles;
   }
@@ -49,7 +50,7 @@ class Map {
         for (let colIdx = 1; colIdx < (cols - 1); colIdx++) {
           if (colIdx % 2 === 0 && rowIdx % 2 === 0) {
             map[rowIdx][colIdx] = "HB"
-          } else if (randomWithBias(0.45)) {
+          } else if (randomWithBias(this.probOfTiles)) {
             map[rowIdx][colIdx] = "B";
           }
         }

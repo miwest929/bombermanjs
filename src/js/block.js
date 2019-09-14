@@ -41,7 +41,7 @@ class Block {
         this.blockState = BlockState.DEAD;
       }
     };
-    this.destroyAnim = createAnimation(blockDestroy, renderFn, false);
+    this.destroyAnim = createAnimation(blockDestroy, renderFn);
     this.destroyAnim.onFinished = disintegrateFn;
   }
 

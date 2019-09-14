@@ -52,7 +52,6 @@ class Sprite {
   createImageObject() {
     let img = new Image();
     img.onload = () => {
-      console.log(`Successfully loaded '${img.src}'`);
       this.loaded = true;
     };
     img.onerror = () => {
@@ -101,7 +100,7 @@ class Frame {
   }
 }
 
-let createAnimation = (tiles, renderFn, shouldLoop) => {
+let createAnimation = (tiles, renderFn, onEachFn) => {
   let frames = [];
   for (let i = 0; i < tiles.length; i++) {
     let frameTiles = tiles[i];
@@ -110,30 +109,41 @@ let createAnimation = (tiles, renderFn, shouldLoop) => {
     }
     frames.push(new Frame(frameTiles, renderFn));
   }
-  return new Animation(frames, shouldLoop);
+  let animation = new Animation(frames);
+  if (onEachFn) {
+    animation.onEach = onEachFn;
+  }
+
+  return animation;
 }
 
 class Animation {
-  constructor(frames, shouldLoop) {
+  constructor(frames) {
     this.frames = frames;
     this.currentFrameIndex = 0;
     this.ANIMATION_COMPLETED = -1;
     this.currentTimer = null;
-    this.shouldLoop = shouldLoop;
     this.onFinished = () => {};
+    this.onEach = () => {};
+  }
+
+  playLoop(speed) {
+    this.currentTimer = setInterval(() => {
+      this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
+      this.onEach();
+    }, speed);
   }
 
   play(speed) {
     this.currentTimer = setInterval(() => {
-      if (this.shouldLoop) {
-        this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
+      this.currentFrameIndex += 1;
+
+      if (this.currentFrameIndex < this.frames.length) {
+        this.onEach();
       } else {
-        this.currentFrameIndex += 1;
-        if (this.currentFrameIndex === this.frames.length) {
-          this.onFinished();
-          this.currentFrameIndex = this.ANIMATION_COMPLETED;
-          this.stop();
-        }
+        this.onFinished();
+        this.currentFrameIndex = this.ANIMATION_COMPLETED;
+        this.stop();
       }
     }, speed);
   }

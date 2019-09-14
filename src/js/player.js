@@ -27,14 +27,14 @@ class Player {
     this.gameManager = gameManager;
     this.x = x;
     this.y = y;
-    this.baseSpeed = 1.0;
+    this.baseSpeed = 2.0;
     this.directionState = DirectionState.STILL
     this.playerState = PlayerState.ALIVE;
 
     this.createAnimations();
     this.animation = this.rightAnim;
     this.velocity = {x: 0, y: 0};
-    this.lives = 3;
+    this.lives = 1;
 
     // power up attributes
     this.maxBombsAtOnce = 1;
@@ -50,29 +50,41 @@ class Player {
   deathSequenceFinished() {
     this.playerState = PlayerState.DEAD;
     this.lives -= 1;
-    let isGameOver = this.lives <= 0;
-    this.gameManager.resetLevel(isGameOver);
+
+    if (this.lives <= 0) {
+      this.gameManager.endGame();
+    }
+  }
+
+  performMove() {
+    this.x += this.velocity.x;
+    this.y += this.velocity.y;
   }
 
   createAnimations() {
     let renderFn = (tiles, context) => {
       tiles[0].renderAt(context, this.x+5, this.y-16, 16, 32);
-    }
-    this.upAnim = createAnimation(moveUp, renderFn, true);
-    this.rightAnim = createAnimation(moveRight, renderFn, true);
-    this.downAnim = createAnimation(moveDown, renderFn, true);
-    this.leftAnim = createAnimation(moveLeft, renderFn, true);
-    this.deathAnim = createAnimation(PLAYER_DEATH, renderFn, false);
-    this.deathAnim.onFinished = this.deathSequenceFinished;
+    };
+    let onEachFn = () => { this.performMove() };
+    this.upAnim = createAnimation(moveUp, renderFn, onEachFn);
+    this.rightAnim = createAnimation(moveRight, renderFn, onEachFn);
+    this.downAnim = createAnimation(moveDown, renderFn, onEachFn);
+    this.leftAnim = createAnimation(moveLeft, renderFn, onEachFn);
+    this.deathAnim = createAnimation(PLAYER_DEATH, renderFn, onEachFn);
+    this.deathAnim.onFinished = () => { this.deathSequenceFinished() };
   }
 
-  changePlayerAnimation(newAnimation, speedInMs) {
+  changePlayerAnimation(newAnimation, speedInMs, shouldLoop) {
     if (this.animation) {
       this.animation.stop();
     }
 
     this.animation = newAnimation;
-    this.animation.play(speedInMs);
+    if (shouldLoop) {
+      this.animation.playLoop(speedInMs);
+    } else {
+      this.animation.play(speedInMs);
+    }
   }
 
   handleKeyInput(keyboard) {
@@ -86,7 +98,7 @@ class Player {
       this.moveRight();
     } else if (keyboard.wasReleasedRecently('space')) {
       this.layBomb();
-    } else {
+    } else if (this.playerState !== PlayerState.DIEING) {
       this.still();
     }
   }
@@ -107,7 +119,7 @@ class Player {
 
   destroy(gameManager) {
     if (this.playerState === PlayerState.ALIVE) {
-      this.changePlayerAnimation(this.deathAnim, 400);
+      this.changePlayerAnimation(this.deathAnim, 200, false);
       this.playerState = PlayerState.DIEING;
     }
   }
@@ -129,10 +141,10 @@ class Player {
     };
     if (gameManager.checkCollisionWith("player", this.velocity, collisionFn)) {
       this.still();
-    } else {
-      this.x += this.velocity.x;
-      this.y += this.velocity.y;
-    }
+    }// else {
+    //}
+
+    //console.log(`x=${this.x}, y=${this.y}`);
 
     return true;
   }
@@ -172,7 +184,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.upAnim, MOVE_ANIMATION_SPEED);
+    this.changePlayerAnimation(this.upAnim, MOVE_ANIMATION_SPEED, true);
     this.directionState = DirectionState.UP;
     this.velocity.x = 0
     this.velocity.y = -this.baseSpeed;
@@ -183,7 +195,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.downAnim, MOVE_ANIMATION_SPEED);
+    this.changePlayerAnimation(this.downAnim, MOVE_ANIMATION_SPEED, true);
     this.directionState = DirectionState.DOWN;
     this.velocity.x = 0
     this.velocity.y = this.baseSpeed;
@@ -193,7 +205,7 @@ class Player {
     if (this.directionState === DirectionState.LEFT) {
       return;
     }
-    this.changePlayerAnimation(this.leftAnim, MOVE_ANIMATION_SPEED);
+    this.changePlayerAnimation(this.leftAnim, MOVE_ANIMATION_SPEED, true);
     this.directionState = DirectionState.LEFT;
     this.velocity.y = 0;
     this.velocity.x = -this.baseSpeed;
@@ -203,7 +215,7 @@ class Player {
     if (this.directionState === DirectionState.RIGHT) {
       return;
     }
-    this.changePlayerAnimation(this.rightAnim, MOVE_ANIMATION_SPEED);
+    this.changePlayerAnimation(this.rightAnim, MOVE_ANIMATION_SPEED, true);
     this.directionState = DirectionState.RIGHT;
     this.velocity.y = 0;
     this.velocity.x = this.baseSpeed;

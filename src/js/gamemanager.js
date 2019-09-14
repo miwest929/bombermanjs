@@ -31,7 +31,8 @@ class GameManager {
 
     // Configurables
     this.debugMode = params['debug'] === 'true';
-    this.powerProb = parseFloat(params['powerProb']) || 0.3;
+    this.powerProb = parseFloat(params['powerprob'] || "0.3");
+    this.tilesProb = parseFloat(params['tilesprob'] || "0.45");
 
     // initially the map is empty
     this.mapRows = 0;
@@ -39,6 +40,7 @@ class GameManager {
     this.map = [];
 
     this.observers = {};
+    this.isGameOver = false;
   }
 
   registerMap(map, tiles) {
@@ -141,7 +143,37 @@ class GameManager {
       }
     }
 
-    this.objects['player'].render(ctx);
+    if (this.objects['player']) {
+      this.objects['player'].render(ctx);
+    }
+
+    if (this.isGameOver) {
+      this.renderGameOverDialog();
+    }
+  }
+
+  renderGameOverDialog() {
+    let dialogWidth = 300;
+    let dialogHeight = 100;
+    let borderWidth = 5;
+    let upperLeftX = centerX-(dialogWidth/2);
+    let upperLeftY = centerY-(dialogHeight/2);
+
+    ctx.fillStyle = "white";
+    ctx.fillRect(upperLeftX, upperLeftY, dialogWidth, dialogHeight);
+
+    ctx.beginPath();
+    ctx.lineWidth = borderWidth;
+    ctx.strokeStyle = "black";
+    ctx.rect(upperLeftX, upperLeftY, dialogWidth, dialogHeight);
+    ctx.stroke();
+
+    ctx.font = "30px tahoma";
+    ctx.fillStyle = "red";
+    ctx.fillText("GAME OVER", upperLeftX + 65, upperLeftY+45);
+    ctx.font = "15px tahoma";
+    ctx.fillStyle = "red";
+    ctx.fillText("Press ENTER to continue", upperLeftX + 65, upperLeftY+65);
   }
 
   executeEvents() {
@@ -305,10 +337,26 @@ class GameManager {
     return true; // boxes overlap
   }
 
-  resetLevel(isGameOver) {
-    if (isGameOver) {
-      console.log("GAME IS OVER");
+  handleKeyInput(keyboard) {
+    if (keyboard.isPressed('enter')) {
+      if (this.isGameOver) {
+        this.resetLevel();
+      }
     }
+  }
+
+  endGame() {
+    this.isGameOver = true;
+  }
+
+  resetLevel() {
+    // TODO: doesn't work. On reset Player sprite is rendered is wrong position
+    let map = new Map(COLS_MAP, ROWS_MAP, blockTiles);
+    this.registerMap(map);
+    let emptyPos = map.findEmpty();
+    let player = new Player(emptyPos.x, emptyPos.y, this);
+    gameManager.register(player, "player");
+    this.isGameOver = false;
   }
 }
 
