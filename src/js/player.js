@@ -33,8 +33,7 @@ class Player {
 
     this.createAnimations();
     this.animation = this.rightAnim;
-    this.velocity = NO_VELOCITY;
-
+    this.velocity = {x: 0, y: 0};
     this.lives = 3;
 
     // power up attributes
@@ -160,7 +159,9 @@ class Player {
 
   still() {
     this.directionState = DirectionState.STILL;
-    this.velocity = NO_VELOCITY;
+    this.velocity.x = 0;
+    this.velocity.y = 0;
+
     if (this.animation) {
       this.animation.stop();
     }
