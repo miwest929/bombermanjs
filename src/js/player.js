@@ -91,13 +91,21 @@ class Player {
   handleKeyInput(keyboard) {
     if (keyboard.isPressed('up')) {
       this.moveUp();
-    } else if (keyboard.isPressed('down')) {
+    }
+
+    if (keyboard.isPressed('down')) {
       this.moveDown();
-    } else if (keyboard.isPressed('left')) {
+    }
+
+    if (keyboard.isPressed('left')) {
       this.moveLeft();
-    } else if (keyboard.isPressed('right')) {
+    }
+
+    if (keyboard.isPressed('right')) {
       this.moveRight();
-    } else if (keyboard.wasReleasedRecently('space')) {
+    }
+
+    if (keyboard.wasReleasedRecently('space')) {
       this.layBomb();
     }
   }
