@@ -13,8 +13,6 @@ const PlayerState = {
 };
 
 
-MOVE_ANIMATION_SPEED = 100;
-
 class Player {
   constructor(x, y, gameManager) {
     this.gameManager = gameManager;
@@ -26,6 +24,7 @@ class Player {
 
     this.createAnimations();
     this.animation = this.rightAnim;
+    this.moveAnimationSpeed = 100;
     this.velocity = {x: 0, y: 0};
     this.lives = 1;
 
@@ -103,18 +102,43 @@ class Player {
     }
   }
 
-  consumePowerUp(powerUp) {
-    console.log(`CONSUMED POWERUP ${powerUp}`);
-    if (powerUp === PowerUp.ACCELERATOR) {
-      this.baseSpeed += 0.5;
-    } else if (powerUp === PowerUp.EXPLOSION_EXPANDER) {
-      this.bombStrength += 1;
-    } else if (powerUp === PowerUp.EXTRA_BOMB) {
-      this.maxBombsAtOnce += 1;
-    } else if (powerUp === PowerUp.MAXIMUM_EXPLOSION) {
-      this.bombStrength = 5;
-    } else if (powerUp === PowerUp.SKULL) {
+  consumeAccelerator() {
+    if (this.moveAnimationSpeed > 25) {
+      this.moveAnimationSpeed -= 25;
     }
+  }
+
+  consumeExplosionExpander() {
+    if (this.bombStrength < 4) {
+      this.bombStrength += 1;
+    }
+  }
+
+  consumeExtraBomb() {
+    if (this.maxBombsAtOnce < 4) {
+      this.maxBombsAtOnce += 1;
+    }
+  }
+
+  consumeMaxBombStrength() {
+    this.bombStrength = 4;
+  }
+
+  consumePowerUp(powerUp) {
+    console.log(`CONSUMED POWERUP ${powerUp.powerUpType}`);
+    let powerType = powerUp.powerUpType;
+    if (powerType === PowerUpType.ACCELERATOR) {
+      this.consumeAccelerator();
+    } else if (powerType === PowerUpType.EXPLOSION_EXPANDER) {
+      this.consumeExplosionExpander();
+    } else if (powerType === PowerUpType.EXTRA_BOMB) {
+      this.consumeExtraBomb();
+    } else if (powerType === PowerUpType.MAXIMUM_EXPLOSION) {
+      this.consumeMaxBombStrength();
+    } else if (powerType === PowerUpType.SKULL) {
+    }
+
+    powerUp.destroy();
   }
 
   destroy(gameManager) {
@@ -131,12 +155,11 @@ class Player {
       return true;
     }
 
-    let that = this;
     let collisionFn = (gameManager, obj) => {
-      if (obj.powerUp) {
-        that.consumePowerUp(obj.powerUp);
+      if (isPowerUp(obj)) {
+        this.consumePowerUp(obj);
       } else {
-        that.still();
+        this.still();
       }
     };
     if (gameManager.checkCollisionWith("player", this.velocity, collisionFn)) {
@@ -181,7 +204,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.upAnim, MOVE_ANIMATION_SPEED, true);
+    this.changePlayerAnimation(this.upAnim, this.moveAnimationSpeed, true);
     this.directionState = DirectionState.UP;
     this.velocity.x = 0
     this.velocity.y = -this.baseSpeed;
@@ -192,7 +215,7 @@ class Player {
       return;
     }
 
-    this.changePlayerAnimation(this.downAnim, MOVE_ANIMATION_SPEED, true);
+    this.changePlayerAnimation(this.downAnim, this.moveAnimationSpeed, true);
     this.directionState = DirectionState.DOWN;
     this.velocity.x = 0
     this.velocity.y = this.baseSpeed;
@@ -202,7 +225,7 @@ class Player {
     if (this.animation.inProgress()) {
       return;
     }
-    this.changePlayerAnimation(this.leftAnim, MOVE_ANIMATION_SPEED, true);
+    this.changePlayerAnimation(this.leftAnim, this.moveAnimationSpeed, true);
     this.directionState = DirectionState.LEFT;
     this.velocity.y = 0;
     this.velocity.x = -this.baseSpeed;
@@ -212,7 +235,7 @@ class Player {
     if (this.animation.inProgress()) {
       return;
     }
-    this.changePlayerAnimation(this.rightAnim, MOVE_ANIMATION_SPEED, true);
+    this.changePlayerAnimation(this.rightAnim, this.moveAnimationSpeed, true);
     this.directionState = DirectionState.RIGHT;
     this.velocity.y = 0;
     this.velocity.x = this.baseSpeed;

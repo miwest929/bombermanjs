@@ -98,17 +98,21 @@ class Bomb {
   boundingBox() {
     if (this.state == BombState.EXPLODED) {
       let reach = this.strength * 16
+      let blastWidth = BLOCK_WIDTH * 0.75;
       return [
-        new BoundingBox(this.x - reach, this.y, (BLOCK_WIDTH+2*reach)*0.8, BLOCK_HEIGHT*0.8),
-        new BoundingBox(this.x, this.y - reach, BLOCK_WIDTH*0.8, (BLOCK_HEIGHT+2*reach)*0.8)
+        new BoundingBox(this.x - reach, this.y, BLOCK_WIDTH+2*reach, BLOCK_HEIGHT*0.8),
+        new BoundingBox(this.x, this.y - reach, BLOCK_WIDTH*0.8, (BLOCK_HEIGHT*0.8+2*reach))
       ];
     } else {
       return null;
+      //return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
     }
   }
 
   collidesFn(gameManager, collidedObj) {
-    collidedObj.destroy(gameManager);
+    if (!isBomb(collidedObj)) {
+      collidedObj.destroy(gameManager);
+    }
   }
 
   // returns true if object is still alive

@@ -1,6 +1,14 @@
 let BLOCK_WIDTH = 18;
 let BLOCK_HEIGHT = 18;
 
+let isBomb = (obj) => {
+  return obj instanceof Bomb;
+};
+
+let isPowerUp = (obj) => {
+  return obj instanceof PowerUp;
+};
+
 let getGameParameters = () => {
   const queryParams = new URLSearchParams(window.location.search);
 

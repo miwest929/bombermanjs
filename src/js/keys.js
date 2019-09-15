@@ -44,7 +44,7 @@ class KeyManager {
 
   processKeyDownEvent(e) {
     e = e || window.event;
-    this.disableScrollOnArrowKeys(e);
+    this.preventDefaultWhenNeeded(e);
 
     if (!(e.keyCode in this.keys)) {
       this.keys[e.keyCode] = {state: true, lastReleasedAt: null};
@@ -65,9 +65,11 @@ class KeyManager {
     }
   }
 
-  disableScrollOnArrowKeys(e) {
-    // space and arrow keys
+  preventDefaultWhenNeeded(e) {
+    // disable scroll on space and arrow keya
     if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+      e.preventDefault();
+    } else if (e.keyCode === 68) {
       e.preventDefault();
     }
   }

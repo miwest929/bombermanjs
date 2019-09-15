@@ -39,6 +39,11 @@ class PowerUp {
     this.y = y;
     this.powerUpType = powerUpType;
     this.tile = this.getPowerUpTile(powerUpType);
+    this.isDestroyed = false;
+  }
+
+  destroy() {
+    this.isDestroyed = true;
   }
 
   getPowerUpTile(powerUpType) {
@@ -59,7 +64,7 @@ class PowerUp {
   }
 
   update(manager) {
-    return true;
+    return !this.isDestroyed;
   }
 
   render(ctx) {
@@ -67,7 +72,9 @@ class PowerUp {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
+    let quarterWidth = BLOCK_WIDTH / 4;
+    let quarterHeight = BLOCK_HEIGHT / 4;
+    return new BoundingBox(this.x + quarterWidth, this.y + quarterHeight, 2*quarterWidth, 2*quarterHeight);
   }
 }
 

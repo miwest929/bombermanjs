@@ -6,7 +6,8 @@ let spritesRepo = new SpriteRepository([
   './src/img/SB_Explosion_Expander.png',
   './src/img/SB_Extra_Bomb.png',
   './src/img/SB_Maximum_Explosion.png',
-  './src/img/SB_Skull.png'
+  './src/img/SB_Skull.png',
+  './src/img/otherbombers.png'
 ]);
 let bombImg = spritesRepo.fetch('bombs').image;
 let bombermanImg = spritesRepo.fetch('bomberman').image;
@@ -16,6 +17,7 @@ let explosionExpanderImg = spritesRepo.fetch('SB_Explosion_Expander').image;
 let extraBombImg = spritesRepo.fetch('SB_Extra_Bomb').image;
 let maximumExplosionImg = spritesRepo.fetch('SB_Maximum_Explosion').image;
 let skullImg = spritesRepo.fetch('SB_Skull').image;
+let otherBombersImg = spritesRepo.fetch('otherbombers').image;
 
 // power ups
 let accelerator = new Tile(acceleratorImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
@@ -72,6 +74,41 @@ let PLAYER_DEATH = [
   new Tile(bombermanImg, 64, 356, PLAYER_WIDTH, PLAYER_HEIGHT)
 ];
 // end of player animations
+
+let createPlayerTile = (img, imgX, imgY) => {
+  return new Tile(img, imgX, imgY, PLAYER_WIDTH, PLAYER_HEIGHT);
+};
+
+// start of ai player animations
+let aiMoveUp = [
+  createPlayerTile(otherBombersImg, 212, 21),
+  createPlayerTile(otherBombersImg, 228, 21),
+  createPlayerTile(otherBombersImg, 244, 21)
+];
+let aiMoveRight = [
+  createPlayerTile(otherBombersImg, 261, 47),
+  createPlayerTile(otherBombersImg, 278, 47),
+  createPlayerTile(otherBombersImg, 293, 47)
+];
+let aiMoveDown = [
+  createPlayerTile(otherBombersImg, 206, 103),
+  createPlayerTile(otherBombersImg, 226, 103),
+  createPlayerTile(otherBombersImg, 247, 103)
+];
+let aiMoveLeft = [
+  createPlayerTile(otherBombersImg, 158, 44),
+  createPlayerTile(otherBombersImg, 173, 44),
+  createPlayerTile(otherBombersImg, 244, 44)
+];
+let aiDeath = [
+  createPlayerTile(otherBombersImg, 185, 75),
+  createPlayerTile(otherBombersImg, 204, 75),
+  createPlayerTile(otherBombersImg, 221, 75),
+  createPlayerTile(otherBombersImg, 238, 75),
+  createPlayerTile(otherBombersImg, 255, 75),
+  createPlayerTile(otherBombersImg, 273, 75),
+];
+// end of ai player animations
 
 // bomb animations
 let BOMB_TILE_WIDTH = BOMB_TILE_HEIGHT = 16;
