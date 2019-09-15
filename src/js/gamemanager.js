@@ -22,6 +22,12 @@ let blankMap = (cols, rows) => {
     - boundingBox
     - destroy [logic for destroying the object. ends in unregistering from manager]
 */
+const GameState = {
+  IN_PROGRESS: "IN_PROGRESS",
+  GAME_OVER_LOST: "LOST",
+  GAME_OVER_WON: "WON"
+};
+
 class GameManager {
   constructor(ctx, params) {
     this.ctx = ctx;
@@ -40,7 +46,7 @@ class GameManager {
     this.map = [];
 
     this.observers = {};
-    this.isGameOver = false;
+    this.state = GameState.IN_PROGRESS;
 
     this.registerObserver("block_destroyed", (props) => {
       let powerUp = createRandomPowerUp(this, props.x, props.y);
@@ -167,12 +173,20 @@ class GameManager {
       this.objects['player'].render(ctx);
     }
 
-    if (this.isGameOver) {
-      this.renderGameOverDialog();
+    if (this.objects['aiplayer.1']) {
+      this.objects['aiplayer.1'].render(ctx);
+    }
+
+    if (this.isGameOver()) {
+      let txt = "GAME OVER";
+      if (this.state === GameState.GAME_OVER_WON) {
+        txt = "YOU WON!";
+      }
+      this.renderGameOverDialog(txt);
     }
   }
 
-  renderGameOverDialog() {
+  renderGameOverDialog(msg) {
     let dialogWidth = 300;
     let dialogHeight = 100;
     let borderWidth = 5;
@@ -190,7 +204,7 @@ class GameManager {
 
     ctx.font = "30px tahoma";
     ctx.fillStyle = "red";
-    ctx.fillText("GAME OVER", upperLeftX + 65, upperLeftY+45);
+    ctx.fillText(msg, upperLeftX + 65, upperLeftY+45);
     ctx.font = "15px tahoma";
     ctx.fillStyle = "red";
     ctx.fillText("Press ENTER to continue", upperLeftX + 65, upperLeftY+65);
@@ -357,9 +371,13 @@ class GameManager {
     return true; // boxes overlap
   }
 
+  isGameOver() {
+    return this.state === GameState.GAME_OVER_LOST || this.state === GameState.GAME_OVER_WON;
+  }
+
   handleKeyInput(keyboard) {
     if (keyboard.isPressed('enter')) {
-      if (this.isGameOver) {
+      if (this.isGameOver()) {
         this.resetLevel();
       }
     } else if (keyboard.wasReleasedRecently('d')) {
@@ -367,8 +385,12 @@ class GameManager {
     }
   }
 
-  endGame() {
-    this.isGameOver = true;
+  endGameWon() {
+    this.state = GameState.GAME_OVER_WON;
+  }
+
+  endGameLost() {
+    this.state = GameState.GAME_OVER_LOST;
   }
 
   resetLevel() {
@@ -378,7 +400,7 @@ class GameManager {
     let emptyPos = map.findEmpty();
     let player = new Player(emptyPos.x, emptyPos.y, this);
     gameManager.register(player, "player");
-    this.isGameOver = false;
+    this.state = GameState.IN_PROGRESS;
   }
 }
 

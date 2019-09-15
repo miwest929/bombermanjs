@@ -80,6 +80,8 @@ let createPlayerTile = (img, imgX, imgY) => {
 };
 
 // start of ai player animations
+let AI_PLAYER_WIDTH = 16;
+let AI_PLAYER_HEIGHT = 23;
 let aiMoveUp = [
   createPlayerTile(otherBombersImg, 212, 21),
   createPlayerTile(otherBombersImg, 228, 21),
@@ -91,14 +93,14 @@ let aiMoveRight = [
   createPlayerTile(otherBombersImg, 293, 47)
 ];
 let aiMoveDown = [
-  createPlayerTile(otherBombersImg, 206, 103),
-  createPlayerTile(otherBombersImg, 226, 103),
-  createPlayerTile(otherBombersImg, 247, 103)
+  createPlayerTile(otherBombersImg, 211, 46),
+  createPlayerTile(otherBombersImg, 227, 46),
+  createPlayerTile(otherBombersImg, 243, 46)
 ];
 let aiMoveLeft = [
   createPlayerTile(otherBombersImg, 158, 44),
   createPlayerTile(otherBombersImg, 173, 44),
-  createPlayerTile(otherBombersImg, 244, 44)
+  createPlayerTile(otherBombersImg, 194, 44)
 ];
 let aiDeath = [
   createPlayerTile(otherBombersImg, 185, 75),

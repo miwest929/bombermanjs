@@ -25,6 +25,10 @@ let emptyPos = map.findEmpty();
 let player = new Player(emptyPos.x-4, emptyPos.y, gameManager);
 gameManager.register(player, "player");
 
+emptyPos = map.findEmpty();
+let aiPlayer = new AiPlayer(emptyPos.x-4, emptyPos.y, gameManager);
+gameManager.register(aiPlayer, "aiplayer.1");
+
 let main = function() {
   render();
   update();
@@ -42,6 +46,7 @@ let update = function() {
   gameManager.handleKeyInput(keyboard);
   gameManager.updateWorld();
   player.update(gameManager);
+  aiPlayer.update(gameManager);
 }
 
 main();

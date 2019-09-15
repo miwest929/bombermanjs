@@ -44,8 +44,12 @@ class Player {
     this.lives -= 1;
 
     if (this.lives <= 0) {
-      this.gameManager.endGame();
+      this.endGame();
     }
+  }
+
+  endGame() {
+    this.gameManager.endGameLost();
   }
 
   performMove() {
