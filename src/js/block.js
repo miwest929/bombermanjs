@@ -71,7 +71,7 @@ class Block {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x, this.y, 19, 19);
+    return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
   }
 }
 
@@ -95,6 +95,6 @@ class HardBlock {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x, this.y, 19, 19);
+    return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
   }
 }

@@ -22,7 +22,7 @@ let map = new Map(COLS_MAP, ROWS_MAP, blockTiles, gameManager.tilesProb);
 gameManager.registerMap(map, blockTiles);
 
 let emptyPos = map.findEmpty();
-let player = new Player(emptyPos.x, emptyPos.y, gameManager);
+let player = new Player(emptyPos.x-4, emptyPos.y, gameManager);
 gameManager.register(player, "player");
 
 let main = function() {

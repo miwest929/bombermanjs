@@ -72,6 +72,10 @@ class Tile {
     this.tileHeight = tileHeight;
   }
 
+  // renderedWidth -> width in source image
+  // renderedHeight -> height in source image
+  // this.tileWidth -> width on destination canvas
+  // this.tileHeight -> height on destination canvas
   renderAt(context, x, y, renderedWidth, renderedHeight) {
     // ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     // sWidth, sHeight -> width, height of sub-rectangle in source image
@@ -121,13 +125,17 @@ class Animation {
   constructor(frames) {
     this.frames = frames;
     this.currentFrameIndex = 0;
-    this.ANIMATION_COMPLETED = -1;
     this.currentTimer = null;
     this.onFinished = () => {};
     this.onEach = () => {};
   }
 
+  inProgress() {
+    return !!this.currentTimer
+  }
+
   playLoop(speed) {
+    this.currentFrameIndex = 0;
     this.currentTimer = setInterval(() => {
       this.currentFrameIndex = (this.currentFrameIndex + 1) % this.frames.length;
       this.onEach();
@@ -135,14 +143,16 @@ class Animation {
   }
 
   play(speed) {
+    this.currentFrameIndex = 0;
     this.currentTimer = setInterval(() => {
       this.currentFrameIndex += 1;
 
       if (this.currentFrameIndex < this.frames.length) {
         this.onEach();
       } else {
+        this.onEach();
         this.onFinished();
-        this.currentFrameIndex = this.ANIMATION_COMPLETED;
+        this.currentFrameIndex = 0;
         this.stop();
       }
     }, speed);
@@ -151,12 +161,11 @@ class Animation {
   stop() {
     if (this.currentTimer) {
       window.clearInterval(this.currentTimer);
+      this.currentTimer = null;
     }
   }
 
   render(context) {
-    if (this.currentFrameIndex !== this.ANIMATION_COMPLETED) {
-      this.frames[this.currentFrameIndex].render(context);
-    }
+    this.frames[this.currentFrameIndex].render(context);
   }
 }

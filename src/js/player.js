@@ -20,14 +20,14 @@ const PowerUp = {
   SKULL: "SKULL"
 };
 
-MOVE_ANIMATION_SPEED = 125;
+MOVE_ANIMATION_SPEED = 100;
 
 class Player {
   constructor(x, y, gameManager) {
     this.gameManager = gameManager;
     this.x = x;
     this.y = y;
-    this.baseSpeed = 2.0;
+    this.baseSpeed = 6;
     this.directionState = DirectionState.STILL
     this.playerState = PlayerState.ALIVE;
 
@@ -66,6 +66,7 @@ class Player {
       tiles[0].renderAt(context, this.x+5, this.y-16, 16, 32);
     };
     let onEachFn = () => { this.performMove() };
+
     this.upAnim = createAnimation(moveUp, renderFn, onEachFn);
     this.rightAnim = createAnimation(moveRight, renderFn, onEachFn);
     this.downAnim = createAnimation(moveDown, renderFn, onEachFn);
@@ -81,7 +82,7 @@ class Player {
 
     this.animation = newAnimation;
     if (shouldLoop) {
-      this.animation.playLoop(speedInMs);
+      this.animation.play(speedInMs);
     } else {
       this.animation.play(speedInMs);
     }
@@ -98,8 +99,6 @@ class Player {
       this.moveRight();
     } else if (keyboard.wasReleasedRecently('space')) {
       this.layBomb();
-    } else if (this.playerState !== PlayerState.DIEING) {
-      this.still();
     }
   }
 
@@ -141,10 +140,7 @@ class Player {
     };
     if (gameManager.checkCollisionWith("player", this.velocity, collisionFn)) {
       this.still();
-    }// else {
-    //}
-
-    //console.log(`x=${this.x}, y=${this.y}`);
+    }
 
     return true;
   }
@@ -180,7 +176,7 @@ class Player {
   }
 
   moveUp() {
-    if (this.directionState === DirectionState.UP) {
+    if (this.animation.inProgress()) {
       return;
     }
 
@@ -191,7 +187,7 @@ class Player {
   }
 
   moveDown() {
-    if (this.directionState === DirectionState.DOWN) {
+    if (this.animation.inProgress()) {
       return;
     }
 
@@ -202,7 +198,7 @@ class Player {
   }
 
   moveLeft() {
-    if (this.directionState === DirectionState.LEFT) {
+    if (this.animation.inProgress()) {
       return;
     }
     this.changePlayerAnimation(this.leftAnim, MOVE_ANIMATION_SPEED, true);
@@ -212,7 +208,7 @@ class Player {
   }
 
   moveRight() {
-    if (this.directionState === DirectionState.RIGHT) {
+    if (this.animation.inProgress()) {
       return;
     }
     this.changePlayerAnimation(this.rightAnim, MOVE_ANIMATION_SPEED, true);
@@ -222,7 +218,7 @@ class Player {
   }
 
   boundingBox() {
-    return new BoundingBox(this.x+1, this.y, BLOCK_WIDTH-1, BLOCK_HEIGHT-1);
+    return new BoundingBox(this.x+5, this.y+1, 16, 15);//BLOCK_WIDTH-1, BLOCK_HEIGHT-1);
   }
 
   render(context) {

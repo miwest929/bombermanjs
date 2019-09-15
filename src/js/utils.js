@@ -1,3 +1,6 @@
+let BLOCK_WIDTH = 18;
+let BLOCK_HEIGHT = 18;
+
 let getGameParameters = () => {
   const queryParams = new URLSearchParams(window.location.search);
 

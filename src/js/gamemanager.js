@@ -342,6 +342,8 @@ class GameManager {
       if (this.isGameOver) {
         this.resetLevel();
       }
+    } else if (keyboard.wasReleasedRecently('d')) {
+      this.debugMode = !this.debugMode;
     }
   }
 

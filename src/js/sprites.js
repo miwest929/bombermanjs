@@ -17,9 +17,6 @@ let extraBombImg = spritesRepo.fetch('SB_Extra_Bomb').image;
 let maximumExplosionImg = spritesRepo.fetch('SB_Maximum_Explosion').image;
 let skullImg = spritesRepo.fetch('SB_Skull').image;
 
-let BLOCK_WIDTH = 20;
-let BLOCK_HEIGHT = 20;
-
 // power ups
 let accelerator = new Tile(acceleratorImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
 let explosionExpander = new Tile(explosionExpanderImg, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);

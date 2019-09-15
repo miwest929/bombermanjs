@@ -11,7 +11,8 @@ class KeyManager {
       "left": "37",
       "right": "39",
       "space": "32",
-      "enter": "13"
+      "enter": "13",
+      "d": "68"
     };
 
     return keyNameMap[name];
