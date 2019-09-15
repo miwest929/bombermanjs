@@ -39,7 +39,7 @@ class Bomb {
     }
 
     this.animation.play(75);
-    this.gameManager.publish("bomb_exploded");
+    this.gameManager.publish("bomb_exploded", {});
   }
 
   createAnimations() {

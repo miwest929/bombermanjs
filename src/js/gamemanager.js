@@ -41,6 +41,25 @@ class GameManager {
 
     this.observers = {};
     this.isGameOver = false;
+
+    this.registerObserver("block_destroyed", (props) => {
+      let powerUp = createRandomPowerUp(this, props.x, props.y);
+      if (powerUp) {
+        let key = this.createRandomObjectId('powerup');
+        this.placeObject(powerUp, key, props.x, props.y);
+      }
+    });
+  }
+
+  createRandomObjectId(prefix) {
+    let rnd = Math.floor(Math.random() * 9999) + 1000;
+    let key = `${prefix}.${rnd}`;
+    while (key in this.objects) {
+      rnd = Math.floor(Math.random() * 9999) + 1000;
+      key = `${prefix}.${rnd}`;
+    }
+
+    return key;
   }
 
   registerMap(map, tiles) {
@@ -84,10 +103,11 @@ class GameManager {
     return Math.floor(y / BLOCK_HEIGHT) * BLOCK_HEIGHT;
   }
 
-  publish(event_name) {
+  publish(event_name, props) {
+    props = props || {};
     let observers = this.observers[event_name] || [];
     for (let i = 0; i < observers.length; i++) {
-      observers[i]();
+      observers[i](props);
     }
   }
 
