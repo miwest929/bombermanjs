@@ -4,6 +4,12 @@ const BlockState = {
   DEAD: "DEAD",
 };
 
+const PowerUpState = {
+  LIVE: "LIVE",
+  HIDDEN: "HIDDEN", // power up is in process of disappearing (blinking)
+  DISAPPEARED: "DISAPPEARED" // power up has expired
+};
+
 const PowerUpType = {
   ACCELERATOR: "ACCELERATOR",
   EXPLOSION_EXPANDER: "EXPLOSION_EXPANDER",
@@ -33,17 +39,42 @@ let createRandomPowerUp = (manager, x, y) => {
 
 class PowerUp {
   constructor(manager, x, y, powerUpType) {
-    console.log("NEW POWERUP!");
     this.manager = manager;
     this.x = x;
     this.y = y;
+    this.state = PowerUpState.LIVE;
     this.powerUpType = powerUpType;
     this.tile = this.getPowerUpTile(powerUpType);
     this.isDestroyed = false;
+
+    this.age = 0; // how many 500ms has passed since this power up started existing
+    this.ageCounter = setInterval(() => {
+      this.age += 1;
+
+      // after 5 seconds (age == 10) start disappearing act
+      if (this.age === 10) {
+        this.state = PowerUpState.HIDDEN;
+      } else if (this.age === 12) {
+        this.state = PowerUpState.LIVE;
+      } else if (this.age === 14) {
+        this.state = PowerUpState.HIDDEN;
+      } else if (this.age === 15) {
+        this.state = PowerUpState.LIVE;
+      } else if (this.age === 16) {
+        this.state = PowerUpState.HIDDEN;
+      } else if (this.age === 17) {
+        this.state = PowerUpState.LIVE;
+      } else if (this.age === 18) {
+        this.state = PowerUpState.HIDDEN;
+      } else if (this.age > 18) {
+        this.destroy();
+      }
+    }, 500);
   }
 
   destroy() {
     this.isDestroyed = true;
+    this.state = PowerUpState.DISAPPEARED;
   }
 
   getPowerUpTile(powerUpType) {
@@ -68,7 +99,9 @@ class PowerUp {
   }
 
   render(ctx) {
-    this.tile.renderAt(ctx, this.x, this.y, 16, 16);
+    if (this.state === PowerUpState.LIVE) {
+      this.tile.renderAt(ctx, this.x, this.y, 16, 16);
+    }
   }
 
   boundingBox() {

@@ -1,4 +1,3 @@
-// spritesRepo.fetch("grid.png").asTiles(24, 24, 32, 32, 4);
 class SpriteRepository {
   constructor(spritePaths) {
     this.sprites = [];

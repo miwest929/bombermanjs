@@ -33,14 +33,54 @@ class Bomb {
     this.state = BombState.EXPLODED;
     this.animation.stop();
 
-    this.animation = this.explode1Anim;
-    if (this.strength == 2) {
-      this.animation = this.explode2Anim;
+    let strengthAnimMap = {
+      1: this.explode1Anim,
+      2: this.explode2Anim,
+      3: this.explode3Anim,
+      4: this.explode4Anim,
+      5: this.explode5Anim
+    };
+
+    this.animation = strengthAnimMap[this.strength];
+    if (!this.animation) {
+      this.animation = this.explode1Anim;
     }
 
     this.animation.play(75);
     this.gameManager.publish("bomb_exploded", {});
   }
+
+  explosionExtent(x, y) {
+    let r = Math.floor(y / BLOCK_HEIGHT);
+    let c = Math.floor(x / BLOCK_WIDTH);
+
+    let east = 1;
+    while (this.gameManager.map[r][c-east] === ' ' && east <= this.strength) {
+      east += 1;
+    }
+
+    let west = 1;
+    while (this.gameManager.map[r][c+west] === ' ' && west <= this.strength) {
+      west += 1;
+    }
+
+    let north = 1;
+    while (this.gameManager.map[r-north][c] === ' ' && north <= this.strength) {
+      north += 1;
+    }
+
+    let south = 1;
+    while (this.gameManager.map[r+south][c] === ' ' && south <= this.strength) {
+      south += 1;
+    }
+
+    return {
+      east: Math.min(east, this.strength),
+      west: Math.min(west, this.strength),
+      north: Math.min(north, this.strength),
+      south: Math.min(south, this.strength)
+    };
+  };
 
   createAnimations() {
     let renderFn = (tiles, context) => {
@@ -50,6 +90,28 @@ class Bomb {
 
     let allExplodedFn = () => {
       this.state = BombState.DEAD;
+    };
+
+
+    // returns a render function
+    let explodeRenderFn = (explosionSize) => {
+      return (tiles, context) => {
+        tiles[0].renderAt(context, this.x, this.y, 16, 16);
+
+        let extent = this.explosionExtent(this.x, this.y);
+        for (let i = 1; i <= extent['east']; i++) {
+          tiles[1].renderAt(context, this.x-i*16, this.y, 16, 16);
+        }
+        for (let i = 1; i <= extent['west']; i++) {
+          tiles[1].renderAt(context, this.x+i*16, this.y, 16, 16);
+        }
+        for (let i = 1; i <= extent['north']; i++) {
+          tiles[2].renderAt(context, this.x, this.y-i*16, 16, 16);
+        }
+        for (let i = 1; i <= extent['south']; i++) {
+          tiles[2].renderAt(context, this.x, this.y+i*16, 16, 16);
+        }
+      };
     };
     let explodingTiles = [
       [coreExplosion[0], horizontalExplosion[0], verticalExplosion[0]],
@@ -63,36 +125,21 @@ class Bomb {
       [coreExplosion[8], coreExplosion[8], coreExplosion[8]],
       [coreExplosion[9], coreExplosion[9], coreExplosion[9]],
     ];
-    let explode1RenderFn = (tiles, context) => {
-      tiles[0].renderAt(context, this.x, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x-16, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x+16, this.y, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y-16, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y+16, 16, 16);
-    };
-    this.explode1Anim = createAnimation(explodingTiles, explode1RenderFn);
+
+    this.explode1Anim = createAnimation(explodingTiles, explodeRenderFn(1));
     this.explode1Anim.onFinished = allExplodedFn;
 
-    let explode2RenderFn = (tiles, context) => {
-      tiles[0].renderAt(context, this.x, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x-16, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x+16, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x-32, this.y, 16, 16);
-      tiles[1].renderAt(context, this.x+32, this.y, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y-16, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y+16, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y-32, 16, 16);
-      tiles[2].renderAt(context, this.x, this.y+32, 16, 16);
-    };
-    this.explode2Anim = createAnimation(explodingTiles, explode2RenderFn);
+    this.explode2Anim = createAnimation(explodingTiles, explodeRenderFn(2));
     this.explode2Anim.onFinished = allExplodedFn;
 
-    //this.horizontalExplosionAnim = createAnimation(horizontalExplosion, renderFn, false);
-    //this.verticalExplosionAnim = createAnimation(verticalExplosion, renderFn, false);
-    //this.rightHorizontalExplosionAnim = createAnimation(rightHorizontalExplosion, renderFn, false);
-    //this.leftHorizontalExplosionAnim = createAnimation(leftHorizontalExplosion, renderFn, false);
-    //this.rightVerticalExplosionAnim = createAnimation(rightVerticalExplosion, renderFn, false);
-    //this.leftVerticalExplosionAnim = createAnimation(leftVerticalExplosion, renderFn, false);
+    this.explode3Anim = createAnimation(explodingTiles, explodeRenderFn(3));
+    this.explode3Anim.onFinished = allExplodedFn;
+
+    this.explode4Anim = createAnimation(explodingTiles, explodeRenderFn(4));
+    this.explode4Anim.onFinished = allExplodedFn;
+
+    this.explode5Anim = createAnimation(explodingTiles, explodeRenderFn(5));
+    this.explode5Anim.onFinished = allExplodedFn;
   }
 
   boundingBox() {
@@ -104,13 +151,12 @@ class Bomb {
         new BoundingBox(this.x, this.y - reach, BLOCK_WIDTH*0.8, (BLOCK_HEIGHT*0.8+2*reach))
       ];
     } else {
-      return null;
-      //return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
+      return new BoundingBox(this.x, this.y, BLOCK_WIDTH, BLOCK_HEIGHT);
     }
   }
 
   collidesFn(gameManager, collidedObj) {
-    if (!isBomb(collidedObj)) {
+    if (!isBomb(collidedObj) && this.state === BombState.EXPLODED) {
       collidedObj.destroy(gameManager);
     }
   }
@@ -124,7 +170,11 @@ class Bomb {
       return false;
     }
 
-    gameManager.checkCollisionWith(this.objectId, NO_VELOCITY, this.collidesFn)
+    gameManager.checkCollisionWith(
+      this.objectId,
+      NO_VELOCITY,
+      (m, obj) => { this.collidesFn(m, obj); }
+    )
 
     return true;
   }

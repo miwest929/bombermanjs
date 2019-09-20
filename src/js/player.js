@@ -102,6 +102,7 @@ class Player {
     }
 
     if (keyboard.wasReleasedRecently('space')) {
+      console.log("spacebar was pressed");
       this.layBomb();
     }
   }
@@ -113,19 +114,24 @@ class Player {
   }
 
   consumeExplosionExpander() {
-    if (this.bombStrength < 4) {
+    if (this.bombStrength < 5) {
       this.bombStrength += 1;
     }
   }
 
   consumeExtraBomb() {
-    if (this.maxBombsAtOnce < 4) {
+    if (this.maxBombsAtOnce < 5) {
       this.maxBombsAtOnce += 1;
     }
   }
 
   consumeMaxBombStrength() {
     this.bombStrength = 4;
+  }
+
+  consumeSkull() {
+    // choose power up to negate
+    let randomPowerUp = Math.floor(Math.random() * 5);
   }
 
   consumePowerUp(powerUp) {
@@ -140,6 +146,7 @@ class Player {
     } else if (powerType === PowerUpType.MAXIMUM_EXPLOSION) {
       this.consumeMaxBombStrength();
     } else if (powerType === PowerUpType.SKULL) {
+      this.consumeSkull();
     }
 
     powerUp.destroy();
@@ -162,13 +169,15 @@ class Player {
     let collisionFn = (gameManager, obj) => {
       if (isPowerUp(obj)) {
         this.consumePowerUp(obj);
+      } else if (isBomb(obj)) {
+        if (Math.abs(obj.x - this.x) > 10) {
+          this.still();
+        }
       } else {
         this.still();
       }
     };
-    if (gameManager.checkCollisionWith("player", this.velocity, collisionFn)) {
-      this.still();
-    }
+    gameManager.checkCollisionWith("player", this.velocity, collisionFn);
 
     return true;
   }
