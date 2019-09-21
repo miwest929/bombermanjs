@@ -23,15 +23,19 @@ gameManager.registerMap(map, blockTiles);
 
 let emptyPos = map.findEmpty();
 let player = new Player(emptyPos.x-4, emptyPos.y, gameManager);
-gameManager.register(player, "player");
+gameManager.register(player); //, "player");
 
 emptyPos = map.findEmpty();
 let aiPlayer = new AiPlayer(emptyPos.x-4, emptyPos.y, gameManager);
-gameManager.register(aiPlayer, "aiplayer.1");
+gameManager.register(aiPlayer); //, "aiplayer.1");
 
 let main = function() {
+  renderFpsDisplay();
+  let currentTime = performance.now();
   render();
+  console.log(`render took ${performance.now() - currentTime} ms`);
   update();
+  console.log(`update took ${performance.now() - currentTime} ms`);
 
   window.requestAnimationFrame(main);
 }
@@ -41,6 +45,14 @@ let render = function() {
   gameManager.renderWorld(ctx);
 }
 
+let renderFpsDisplay = () => {
+  let currentTime = performance.now();
+  let fps = computeFps(currentTime);
+  prevTime = currentTime;
+  let fpsElement = document.getElementById("fps");
+  fpsElement.innerHTML = `Frames Per Second = ${fps}`;
+};
+
 let update = function() {
   player.handleKeyInput(keyboard);
   gameManager.handleKeyInput(keyboard);
@@ -48,5 +60,11 @@ let update = function() {
   player.update(gameManager);
   aiPlayer.update(gameManager);
 }
+
+let prevTime = performance.now();
+let computeFps = (currentTime) => {
+  let fpsAsFloat = 1000 / (currentTime - prevTime);
+  return Math.trunc(fpsAsFloat + 0.5);
+};
 
 main();

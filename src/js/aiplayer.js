@@ -45,7 +45,6 @@ class AiPlayer extends Player {
     }
 
     let collisionFn = (gameManager, obj) => {
-      console.log("AI COLLISION");
       if (isPowerUp(obj)) {
         this.consumePowerUp(obj);
       } else {
@@ -53,7 +52,7 @@ class AiPlayer extends Player {
       }
     };
 
-    if (gameManager.checkCollisionWith("aiplayer.1", this.velocity, collisionFn)) {
+    if (gameManager.checkCollisionWith(this.objectId, this.velocity, collisionFn)) {
       this.still();
     }
 

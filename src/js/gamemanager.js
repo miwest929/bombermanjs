@@ -35,6 +35,8 @@ class GameManager {
     this.events = [];
     this.tiles = {};
 
+    this.id_pool = new IdPool(4);
+
     // Configurables
     this.debugMode = params['debug'] === 'true';
     this.powerProb = parseFloat(params['powerprob'] || "0.3");
@@ -51,21 +53,15 @@ class GameManager {
     this.registerObserver("block_destroyed", (props) => {
       let powerUp = createRandomPowerUp(this, props.x, props.y);
       if (powerUp) {
-        let key = this.createRandomObjectId('powerup');
-        this.placeObject(powerUp, key, props.x, props.y);
+        this.placeObject(powerUp, props.x, props.y);
       }
     });
   }
 
-  createRandomObjectId(prefix) {
-    let rnd = Math.floor(Math.random() * 9999) + 1000;
-    let key = `${prefix}.${rnd}`;
-    while (key in this.objects) {
-      rnd = Math.floor(Math.random() * 9999) + 1000;
-      key = `${prefix}.${rnd}`;
-    }
-
-    return key;
+  computeObjId(obj) {
+    let objType = obj.constructor.name;
+    let objId = this.id_pool.getUniqueId();
+    return `${objType}.${objId}`;
   }
 
   registerMap(map, tiles) {
@@ -84,19 +80,19 @@ class GameManager {
          }
 
          if (block) {
-           let key = "block." + ri + "." + ci;
-           this.register(block, key);
+           let key = this.register(block);
            this.map[ri][ci] = key;
          }
       }
     }
   }
 
-  placeObject(obj, key, x, y) {
+  placeObject(obj, x, y) {
     let row = Math.floor(y / BLOCK_HEIGHT);
     let col = Math.floor(x / BLOCK_WIDTH);
+    let key = this.register(obj);
     this.map[row][col] = key;
-    this.register(obj, key);
+    return key;
   }
 
   // adjust given x to be align with closest col
@@ -125,9 +121,12 @@ class GameManager {
     }
   }
 
+  // returns object id assigned to it
   register(gameObject, key) {
-    gameObject.objectId = key;
-    this.objects[key] = gameObject;
+    let objKey = this.computeObjId(gameObject);
+    gameObject.objectId = objKey;
+    this.objects[objKey] = gameObject;
+    return objKey;
   }
 
   unregister(key) {
@@ -158,23 +157,10 @@ class GameManager {
   }
 
   renderWorld(ctx) {
-    for(var ri = 0, curY = 0; ri < this.mapRows; ri++, curY += BLOCK_WIDTH) {
-      for(var ci = 0, curX = 0; ci < this.mapCols; ci++, curX += BLOCK_HEIGHT) {
-        let key = this.map[ri][ci];
-        if (key !== ' ' && this.objects[key]) {
-          this.objects[key].render(ctx); //, curX, curY);
-        } else {
-          this.map[ri][ci] = ' ';
-        }
+    for (let objKey in this.objects) {
+      if (this.objects[objKey]) {
+        this.objects[objKey].render(ctx);
       }
-    }
-
-    if (this.objects['player']) {
-      this.objects['player'].render(ctx);
-    }
-
-    if (this.objects['aiplayer.1']) {
-      this.objects['aiplayer.1'].render(ctx);
     }
 
     if (this.isGameOver()) {
@@ -268,6 +254,7 @@ class GameManager {
     let gameObjectTwo = this.objects[gameObjectTwoKey];
 
     if (!(gameObjectOne && gameObjectTwo)) {
+      debugger;
       console.log(`[checkForCollision] Warning: Game object with key of either '${gameObjectOneKey}' or '${gameObjectTwoKey}' does not exist.`);
       return;
     }
@@ -399,7 +386,7 @@ class GameManager {
     this.registerMap(map);
     let emptyPos = map.findEmpty();
     let player = new Player(emptyPos.x, emptyPos.y, this);
-    gameManager.register(player, "player");
+    //gameManager.register(player, "player");
     this.state = GameState.IN_PROGRESS;
   }
 }

@@ -18,6 +18,7 @@ class Bomb {
     this.createAnimations();
     this.animation = this.bombAnim;
     this.animation.playLoop(200);
+    this.extent = {};
     this.startFuse();
     this.objectId = null; // only null when not registered with the game manager
   }
@@ -40,6 +41,8 @@ class Bomb {
       4: this.explode4Anim,
       5: this.explode5Anim
     };
+
+    this.extent = this.explosionExtent(this.x, this.y);
 
     this.animation = strengthAnimMap[this.strength];
     if (!this.animation) {
@@ -98,17 +101,16 @@ class Bomb {
       return (tiles, context) => {
         tiles[0].renderAt(context, this.x, this.y, 16, 16);
 
-        let extent = this.explosionExtent(this.x, this.y);
-        for (let i = 1; i <= extent['east']; i++) {
+        for (let i = 1; i <= this.extent['east']; i++) {
           tiles[1].renderAt(context, this.x-i*16, this.y, 16, 16);
         }
-        for (let i = 1; i <= extent['west']; i++) {
+        for (let i = 1; i <= this.extent['west']; i++) {
           tiles[1].renderAt(context, this.x+i*16, this.y, 16, 16);
         }
-        for (let i = 1; i <= extent['north']; i++) {
+        for (let i = 1; i <= this.extent['north']; i++) {
           tiles[2].renderAt(context, this.x, this.y-i*16, 16, 16);
         }
-        for (let i = 1; i <= extent['south']; i++) {
+        for (let i = 1; i <= this.extent['south']; i++) {
           tiles[2].renderAt(context, this.x, this.y+i*16, 16, 16);
         }
       };

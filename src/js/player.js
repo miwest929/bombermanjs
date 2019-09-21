@@ -102,7 +102,6 @@ class Player {
     }
 
     if (keyboard.wasReleasedRecently('space')) {
-      console.log("spacebar was pressed");
       this.layBomb();
     }
   }
@@ -177,14 +176,9 @@ class Player {
         this.still();
       }
     };
-    gameManager.checkCollisionWith("player", this.velocity, collisionFn);
 
+    gameManager.checkCollisionWith(this.objectId, this.velocity, collisionFn);
     return true;
-  }
-
-  // TODO: It's weird that the Player object decides what the bomb's objectId is
-  bombObjectId() {
-    return `bomb.${Math.floor(this.x)}.${Math.floor(this.y)}`;
   }
 
   layBomb() {
@@ -198,7 +192,7 @@ class Player {
       x = gameManager.adjustedX(x);
       y = gameManager.adjustedY(y);
       let bomb = new Bomb(x, y, this.bombStrength, this.gameManager);
-      gameManager.placeObject(bomb, this.bombObjectId(), x, y);
+      gameManager.placeObject(bomb, x, y);
     }
   }
 

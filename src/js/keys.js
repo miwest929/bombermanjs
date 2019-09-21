@@ -19,7 +19,7 @@ class KeyManager {
   }
 
   wasReleasedRecently(key) {
-    let millisecondsAgo = 20;
+    let millisecondsAgo = 30;
     let code = this.keyCode(key);
     if (!this.keys[code]) {
       return false;
@@ -38,7 +38,6 @@ class KeyManager {
     if (!this.keys[code]) {
       return false;
     }
-
     return this.keys[code].state;
   }
 

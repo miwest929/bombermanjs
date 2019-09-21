@@ -42,39 +42,19 @@ class PowerUp {
     this.manager = manager;
     this.x = x;
     this.y = y;
-    this.state = PowerUpState.LIVE;
     this.powerUpType = powerUpType;
     this.tile = this.getPowerUpTile(powerUpType);
     this.isDestroyed = false;
 
-    this.age = 0; // how many 500ms has passed since this power up started existing
-    this.ageCounter = setInterval(() => {
-      this.age += 1;
-
-      // after 5 seconds (age == 10) start disappearing act
-      if (this.age === 10) {
-        this.state = PowerUpState.HIDDEN;
-      } else if (this.age === 12) {
-        this.state = PowerUpState.LIVE;
-      } else if (this.age === 14) {
-        this.state = PowerUpState.HIDDEN;
-      } else if (this.age === 15) {
-        this.state = PowerUpState.LIVE;
-      } else if (this.age === 16) {
-        this.state = PowerUpState.HIDDEN;
-      } else if (this.age === 17) {
-        this.state = PowerUpState.LIVE;
-      } else if (this.age === 18) {
-        this.state = PowerUpState.HIDDEN;
-      } else if (this.age > 18) {
-        this.destroy();
-      }
-    }, 500);
+    this.ageInSeconds = 0;
+    this.ageTickFn = setTimeout(() => { this.ageInSeconds += 1; }, 1000); // tick every second
   }
 
   destroy() {
-    this.isDestroyed = true;
-    this.state = PowerUpState.DISAPPEARED;
+    // power up must have existed for more than 3 seconds in order to be destroyed
+    if (this.ageInSeconds > 0) {
+      this.isDestroyed = true;
+    }
   }
 
   getPowerUpTile(powerUpType) {
@@ -99,9 +79,7 @@ class PowerUp {
   }
 
   render(ctx) {
-    if (this.state === PowerUpState.LIVE) {
-      this.tile.renderAt(ctx, this.x, this.y, 16, 16);
-    }
+    this.tile.renderAt(ctx, this.x, this.y, 16, 16);
   }
 
   boundingBox() {
